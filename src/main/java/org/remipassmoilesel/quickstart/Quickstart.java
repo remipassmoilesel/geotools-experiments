@@ -15,41 +15,40 @@ import org.geotools.swing.data.JFileDataStoreChooser;
 import java.io.File;
 
 /**
- *
  * Geotools manual quickstart
- *
- *
+ * <p>
+ * <p>
  * Prompts the user for a shapefile and displays the contents on the screen in a map frame.
  * <p>
  * This is the GeoTools Quickstart application used in documentation and tutorials. *
  */
 public class Quickstart {
 
-  /**
-   * GeoTools Quickstart demo application. Prompts the user for a shapefile and displays its
-   * contents on the screen in a map frame
-   */
-  public static void main(String[] args) throws Exception {
-    // display a data store file chooser dialog for shapefiles
-    File file = JFileDataStoreChooser.showOpenFile("shp", null);
-    if (file == null) {
-      return;
+    /**
+     * GeoTools Quickstart demo application. Prompts the user for a shapefile and displays its
+     * contents on the screen in a map frame
+     */
+    public static void main(String[] args) throws Exception {
+        // display a data store file chooser dialog for shapefiles
+        File file = JFileDataStoreChooser.showOpenFile("shp", null);
+        if (file == null) {
+            return;
+        }
+
+        FileDataStore store = FileDataStoreFinder.getDataStore(file);
+        SimpleFeatureSource featureSource = store.getFeatureSource();
+
+        // Create a map content and add our shapefile to it
+        MapContent map = new MapContent();
+        map.setTitle("Quickstart");
+
+        Style style = SLD.createSimpleStyle(featureSource.getSchema());
+        Layer layer = new FeatureLayer(featureSource, style);
+        map.addLayer(layer);
+
+        // Now display the map
+        JMapFrame.showMap(map);
     }
-
-    FileDataStore store = FileDataStoreFinder.getDataStore(file);
-    SimpleFeatureSource featureSource = store.getFeatureSource();
-
-    // Create a map content and add our shapefile to it
-    MapContent map = new MapContent();
-    map.setTitle("Quickstart");
-
-    Style style = SLD.createSimpleStyle(featureSource.getSchema());
-    Layer layer = new FeatureLayer(featureSource, style);
-    map.addLayer(layer);
-
-    // Now display the map
-    JMapFrame.showMap(map);
-  }
 
 }
 
