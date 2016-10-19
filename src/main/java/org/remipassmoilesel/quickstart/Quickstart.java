@@ -1,4 +1,4 @@
-package org.remipassmoilesel;
+package org.remipassmoilesel.quickstart;
 
 
 import org.geotools.data.FileDataStore;
