@@ -1,3 +1,6 @@
 .idea
 *.iml
 target/
+data/tiled_src/*
+!data/tiled_src/get-sample-datas.sh
+data/tiled_dest/*
