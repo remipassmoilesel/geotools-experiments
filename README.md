@@ -3,6 +3,13 @@
 All code is extracted from the GeoTools manual (with few modifications)
 http://docs.geotools.org/latest/userguide/
 
+Usage:
+
+    $ git clone http://github.com/remipassmoilesel/geotools-tutorial
+    $ cd geotools-tutorial
+    $ git submodule init
+    $ git submodule update
+
 See:
 
 * Quickstart: https://github.com/remipassmoilesel/geotools-tutorial/blob/master/src/main/java/org/remipassmoilesel/quickstart/Quickstart.java
