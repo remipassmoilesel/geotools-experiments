@@ -91,11 +91,15 @@ public class SelectionLab {
      * The application method
      */
     public static void main(String[] args) throws Exception {
-        SelectionLab me = new SelectionLab();
 
-        File file = JFileDataStoreChooser.showOpenFile("shp", null);
-        if (file == null) {
-            return;
+        SelectionLab me = new SelectionLab();
+        File file = new File("data/ne_50m_admin/ne_50m_admin_0_countries.shp");
+
+        if(file == null){
+            file = JFileDataStoreChooser.showOpenFile("shp", null);
+            if (file == null) {
+                return;
+            }
         }
 
         me.displayShapefile(file);
@@ -185,6 +189,13 @@ public class SelectionLab {
         ReferencedEnvelope bbox = new ReferencedEnvelope(
                 worldRect,
                 mapFrame.getMapContent().getCoordinateReferenceSystem());
+
+        // Here there is a shortcut to create a bounding box
+        System.out.println("bbox");
+        System.out.println(bbox);
+
+        System.out.println("ev.getEnvelopeByPixels(5)");
+        System.out.println(ev.getEnvelopeByPixels(5));
 
         /*
          * Create a Filter to select features that intersect with
