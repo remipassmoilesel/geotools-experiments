@@ -1,0 +1,3 @@
+[submodule "geotools-sources"]
+	path = geotools-sources
+	url = https://github.com/geotools/geotools
