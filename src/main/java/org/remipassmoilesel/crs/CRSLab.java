@@ -22,6 +22,7 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -35,7 +36,7 @@ import java.util.Map;
 /**
  * This tutorial gives a visual demonstration of coordinate reference systems by displaying a
  * shapefile and shows how changing the map projection morphs the geometry of the features.
- *
+ * <p>
  * http://docs.geotools.org/latest/userguide/tutorial/geometry/geometrycrs.html
  */
 public class CRSLab {
@@ -45,8 +46,23 @@ public class CRSLab {
     private MapContent map;
 
     public static void main(String[] args) throws Exception {
-        CRSLab lab = new CRSLab();
-        lab.displayShapefile("data/ne_50m_admin/ne_50m_admin_0_countries.shp");
+//        CRSLab lab = new CRSLab();
+//        lab.displayShapefile("data/ne_50m_admin/ne_50m_admin_0_countries.shp");
+
+        displayCRS(null);
+    }
+
+    private static void displayCRS(String code) throws FactoryException {
+
+        if (code == null) {
+            code = "EPSG:4326";
+        }
+
+        CoordinateReferenceSystem crs = CRS.decode(code);
+        String wkt = crs.toWKT();
+        System.out.println("wkt for: " + code);
+        System.out.println(wkt);
+
     }
 
     private void displayShapefile(String path) throws Exception {
