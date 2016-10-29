@@ -20,12 +20,12 @@ import java.io.File;
  * <p>
  * Prompts the user for a shapefile and displays the contents on the screen in a map frame.
  * <p>
- * This is the GeoTools Quickstart application used in documentation and tutorials. *
+ * This is the GeoTools SimpleShapeFileDisplay application used in documentation and tutorials. *
  */
-public class Quickstart {
+public class SimpleShapeFileDisplay {
 
     /**
-     * GeoTools Quickstart demo application. Prompts the user for a shapefile and displays its
+     * GeoTools SimpleShapeFileDisplay demo application. Prompts the user for a shapefile and displays its
      * contents on the screen in a map frame
      */
     public static void main(String[] args) throws Exception {
@@ -40,7 +40,7 @@ public class Quickstart {
 
         // Create a map content and add our shapefile to it
         MapContent map = new MapContent();
-        map.setTitle("Quickstart");
+        map.setTitle("SimpleShapeFileDisplay");
 
         Style style = SLD.createSimpleStyle(featureSource.getSchema());
         Layer layer = new FeatureLayer(featureSource, style);
