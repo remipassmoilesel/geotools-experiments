@@ -1,18 +1,25 @@
 package org.remipassmoilesel.worldfile;
 
+import com.google.common.primitives.Chars;
 import org.geotools.data.WorldFileWriter;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
+import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.Files.newDirectoryStream;
 
 /**
@@ -26,14 +33,21 @@ public class WorldFileLab {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, FactoryException {
 
         // simple world file
         AffineTransform translate = new AffineTransform(5, 0, 0, 5, 492169, 5426523);
         new WorldFileWriter(new File("data/generated.world"), translate);
 
-        // for tiles in data
-        String root = "data/arbitrary_images/";
+        // process a directory
+        processDirectory("data/arbitrary-images");
+
+        // print a CRS as a prj file
+        printPrjForCode("data/generated.prj", "EPSG:4326");
+
+    }
+
+    public static void processDirectory(String root) throws IOException {
 
         DirectoryStream<Path> dir = Files.newDirectoryStream(Paths.get(root));
         Iterator<Path> iter = dir.iterator();
@@ -46,6 +60,17 @@ public class WorldFileLab {
 
             x += 50;
             y += 20;
+        }
+
+    }
+
+    public static void printPrjForCode(String destination, String epsgCode) throws IOException, FactoryException {
+
+        Path dest = Paths.get(destination);
+
+        // write WKT as a single line
+        try(BufferedWriter writer = Files.newBufferedWriter(dest, Charset.forName("utf-8"))){
+            writer.write(CRS.decode(epsgCode).toString().replaceAll("\\s+", ""));
         }
 
     }
