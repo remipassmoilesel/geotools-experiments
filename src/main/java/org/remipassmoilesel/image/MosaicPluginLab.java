@@ -25,6 +25,7 @@ import org.geotools.map.GridCoverageLayer;
 import org.geotools.map.Layer;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.geotools.referencing.wkt.Formattable;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
@@ -135,7 +136,7 @@ public class MosaicPluginLab {
         // write a prj file - a WKT as a single line
         Path newPrj = Paths.get(root.toString(), root.getFileName() + ".prj");
         try (BufferedWriter writer = Files.newBufferedWriter(newPrj, Charset.forName("utf-8"))) {
-            writer.write(crs.toString().replaceAll("\\s+", ""));
+            writer.write(((Formattable) crs).toWKT(0));
             writer.flush();
         }
 

@@ -2,7 +2,9 @@ package org.remipassmoilesel.worldfile;
 
 import com.google.common.primitives.Chars;
 import org.geotools.data.WorldFileWriter;
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.wkt.Formattable;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -35,12 +37,12 @@ public class WorldFileLab {
      */
     public static void main(String[] args) throws IOException, FactoryException {
 
-        // simple world file
-        AffineTransform translate = new AffineTransform(5, 0, 0, 5, 492169, 5426523);
-        new WorldFileWriter(new File("data/generated.world"), translate);
-
-        // process a directory
-        processDirectory("data/arbitrary-images");
+//        // simple world file
+//        AffineTransform translate = new AffineTransform(5, 0, 0, 5, 492169, 5426523);
+//        new WorldFileWriter(new File("data/generated.world"), translate);
+//
+//        // process a directory
+//        processDirectory("data/arbitrary-images");
 
         // print a CRS as a prj file
         printPrjForCode("data/generated.prj", "EPSG:4326");
@@ -70,7 +72,22 @@ public class WorldFileLab {
 
         // write WKT as a single line
         try(BufferedWriter writer = Files.newBufferedWriter(dest, Charset.forName("utf-8"))){
-            writer.write(CRS.decode(epsgCode).toString().replaceAll("\\s+", ""));
+            Formattable f = (Formattable) CRS.decode(epsgCode, true);
+            String wkt = f.toWKT(0); // use 0 indent for single line
+            writer.write(wkt);
+        }
+
+    }
+
+    public static void printEsriPrjForCode(String destination, String epsgCode) throws IOException, FactoryException {
+
+        Path dest = Paths.get(destination);
+
+        // write WKT as a single line
+        try(BufferedWriter writer = Files.newBufferedWriter(dest, Charset.forName("utf-8"))){
+            Formattable f = (Formattable) CRS.decode(epsgCode, true);
+            String wkt = f.toWKT(Citations.ESRI, 0); // use 0 indent for single line
+            writer.write(wkt);
         }
 
     }
