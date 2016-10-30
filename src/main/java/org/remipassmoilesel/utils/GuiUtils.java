@@ -66,7 +66,7 @@ public class GuiUtils {
 
     }
 
-    public static org.geotools.styling.Style getDefaultRasterStyle(AbstractGridCoverage2DReader reader) {
+    public static org.geotools.styling.Style getDefaultRGBRasterStyle(AbstractGridCoverage2DReader reader) {
 
         GridCoverage2D cov = null;
         try {
@@ -110,12 +110,32 @@ public class GuiUtils {
         }
         // Now we create a RasterSymbolizer using the selected channels
         SelectedChannelType[] sct = new SelectedChannelType[cov.getNumSampleDimensions()];
-        ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NORMALIZE);
+        ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NONE);
         for (int i = 0; i < 3; i++) {
             sct[i] = sf.createSelectedChannelType(String.valueOf(channelNum[i]), ce);
         }
         RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
         ChannelSelection sel = sf.channelSelection(sct[RED], sct[GREEN], sct[BLUE]);
+        sym.setChannelSelection(sel);
+
+        return SLD.wrapSymbolizers(sym);
+
+    }
+
+    public static org.geotools.styling.Style getDefaultGrayScaleRasterStyle(AbstractGridCoverage2DReader reader, Integer bandNum) {
+
+        GridCoverage2D cov = null;
+        try {
+            cov = reader.read(null);
+        } catch (IOException giveUp) {
+            throw new RuntimeException(giveUp);
+        }
+
+        // Now we create a RasterSymbolizer using the selected channels
+        ContrastEnhancement ce = sf.contrastEnhancement(ff.literal(1.0), ContrastMethod.NONE);
+        SelectedChannelType sct = sf.createSelectedChannelType(String.valueOf(bandNum), ce);
+        RasterSymbolizer sym = sf.getDefaultRasterSymbolizer();
+        ChannelSelection sel = sf.channelSelection(sct);
         sym.setChannelSelection(sel);
 
         return SLD.wrapSymbolizers(sym);
