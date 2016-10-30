@@ -1,87 +1,72 @@
 package org.remipassmoilesel.image;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.Transaction;
+import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.gce.imagemosaic.ImageMosaicFormat;
 import org.geotools.gce.imagemosaic.ImageMosaicFormatFactory;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
-import org.geotools.gce.imagepyramid.ImagePyramidFormat;
-import org.geotools.gce.imagepyramid.ImagePyramidFormatFactory;
-import org.geotools.gce.imagepyramid.ImagePyramidReader;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.GridCoverageLayer;
-import org.geotools.map.GridReaderLayer;
-import org.geotools.map.RasterLayer;
-import org.geotools.styling.SLD;
-import org.remipassmoilesel.utils.GuiBuilder;
-import org.remipassmoilesel.utils.GuiUtils;
-import org.remipassmoilesel.worldfile.TileWorldFileWriter;
+import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.*;
+import javax.imageio.ImageIO;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-
-import static org.remipassmoilesel.worldfile.TileWorldFileWriter.createForTile;
+import java.util.*;
 
 /**
  * Created by remipassmoilesel on 29/10/16.
  */
 public class MosaicPluginLab {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, FactoryException {
 
+        writeMosaic("data/geoserver-mosaic-sample", "data/generated.jpg");
+
+    }
+
+    /**
+     * Read a mosaic and write it to an image
+     * @param pathSrc
+     * @param pathDest
+     * @throws IOException
+     */
+    public static void writeMosaic(String pathSrc, String pathDest) throws IOException {
 
         ImageMosaicFormatFactory factory = new ImageMosaicFormatFactory();
         ImageMosaicFormat format = (ImageMosaicFormat) factory.createFormat();
-        ImageMosaicReader reader = format.getReader(new File("data/mosaic_sample/mosaic.shp"));
+        ImageMosaicReader reader = format.getReader(new File(pathSrc));
 
-//        ImagePyramidFormatFactory factory = new ImagePyramidFormatFactory();
-//        ImagePyramidFormat format = factory.createFormat();
-//        ImagePyramidReader reader = format.getReader(new File("data/mosaic_sample/"));
+        System.out.println(reader.getFormat());
 
-        GuiBuilder.newMap("Mosaic").addLayer(new GridReaderLayer(reader, GuiUtils.getDefaultRasterStyle(reader))).show();
+        GridCoverage2D coverage = reader.read(null);
 
-
-    }
-
-
-    /**
-     * Create a shapefile with tiles arbitrary positionned
-     *
-     * @throws IOException
-     */
-    public static void createShapeFile() throws IOException {
-
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        builder.setName("Images");
-        builder.add("location", String.class);
-
-        String root = "data/arbitrary_images/";
-
-        DirectoryStream<Path> dir = Files.newDirectoryStream(Paths.get(root));
-        Iterator<Path> iter = dir.iterator();
-        double x = 0;
-        double y = 0;
-        while (iter.hasNext()) {
-
-            Path elmt = iter.next();
-            createFeatureForTile(elmt, x, y);
-
-            x += 50;
-            y += 20;
-        }
+        RenderedImage image = coverage.getRenderedImage();
+        ImageIO.write(image, "jpg", new File(pathDest));
 
     }
 
-    public static void createFeatureForTile(Path name, double x, double y) throws IOException {
-
-    }
 
 }
