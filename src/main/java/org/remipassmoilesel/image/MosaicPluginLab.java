@@ -5,7 +5,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.processing.operation.Mosaic;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.WorldFileWriter;
@@ -22,8 +21,8 @@ import org.geotools.gce.imagemosaic.ImageMosaicFormatFactory;
 import org.geotools.gce.imagemosaic.ImageMosaicReader;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.map.GridCoverageLayer;
+import org.geotools.map.GridReaderLayer;
 import org.geotools.map.Layer;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.wkt.Formattable;
 import org.opengis.feature.simple.SimpleFeature;
@@ -32,7 +31,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.remipassmoilesel.utils.GuiBuilder;
 import org.remipassmoilesel.utils.GuiUtils;
-import sun.security.provider.Sun;
 
 import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
@@ -50,10 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import static com.sun.xml.internal.ws.policy.sourcemodel.wspolicy.XmlToken.Name;
-import static java.lang.System.exit;
-import static org.remipassmoilesel.worldfile.WorldFileLab.printPrjForCode;
 
 /**
  * Operations with geotools mosaic plugin
@@ -110,9 +104,7 @@ public class MosaicPluginLab {
         ImageMosaicFormat format = (ImageMosaicFormat) factory.createFormat();
         ImageMosaicReader reader = format.getReader(new File(pathSrc));
 
-        GridCoverage2D coverage = reader.read(null);
-
-        Layer rasterLayer = new GridCoverageLayer(coverage, GuiUtils.getDefaultRGBRasterStyle(reader));
+        Layer rasterLayer = new GridReaderLayer(reader, GuiUtils.getDefaultRGBRasterStyle(reader));
 
         GuiBuilder.newMap("Mosaic: " + pathSrc).addLayer(rasterLayer).show();
 
@@ -130,7 +122,7 @@ public class MosaicPluginLab {
         Path root = Paths.get(directory);
 
         // default CRS
-//        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
+        //CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
         CoordinateReferenceSystem crs = DefaultEngineeringCRS.CARTESIAN_2D;
 
         // write a prj file - a WKT as a single line
