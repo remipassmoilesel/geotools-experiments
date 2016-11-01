@@ -51,7 +51,7 @@ public class StyleMemoLab {
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle(new Rule[]{rule});
         Style style = styleFactory.createStyle();
         style.featureTypeStyles().add(fts);
-        
+
 
         // wrap several symbolizers in one SLD sheet
         SLD.wrapSymbolizers();
