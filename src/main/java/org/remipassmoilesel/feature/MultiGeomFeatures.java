@@ -12,13 +12,19 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.CRS;
 import org.geotools.styling.*;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.remipassmoilesel.utils.GuiUtils;
+import org.remipassmoilesel.utils.ShapeUtils;
 
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 /**
  * Test of feature sources, trying to add several geometrical shapes
@@ -28,7 +34,7 @@ public class MultiGeomFeatures {
     private static StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
     private static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory();
 
-    public static void main(String[] args) throws FactoryException {
+    public static void main(String[] args) throws FactoryException, IOException {
 
         CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
 
@@ -107,6 +113,10 @@ public class MultiGeomFeatures {
         map.addLayer(geomLayer);
 
         GuiUtils.showInWindow(map);
+
+        // write features, doesn't work with generic geometry class
+        Path dest = Paths.get("data/multigeom/multigeom.shp");
+        ShapeUtils.write(type, geomCollection, dest);
 
     }
 
