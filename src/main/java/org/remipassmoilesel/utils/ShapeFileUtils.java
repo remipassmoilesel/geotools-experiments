@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Created by remipassmoilesel on 01/11/16.
  */
-public class ShapeUtils {
+public class ShapeFileUtils {
 
     /**
      * Write some features to a shape file

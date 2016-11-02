@@ -12,22 +12,19 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.CRS;
 import org.geotools.styling.*;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.remipassmoilesel.utils.GuiUtils;
-import org.remipassmoilesel.utils.ShapeUtils;
 
 import java.awt.*;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 
 /**
- * Test of feature sources, trying to add several geometrical shapes
+ * Trying to add several geometrical shapes to a single feature source
+ * <p>
+ * As expected, that is not possible to write generic geometries in a shapefile.
  */
 public class MultiGeomFeatures {
 
@@ -115,8 +112,8 @@ public class MultiGeomFeatures {
         GuiUtils.showInWindow(map);
 
         // write features, doesn't work with generic geometry class
-        Path dest = Paths.get("data/multigeom/multigeom.shp");
-        ShapeUtils.write(type, geomCollection, dest);
+        // Path dest = Paths.get("data/multigeom/multigeom.shp");
+        // ShapeFileUtils.write(type, geomCollection, dest);
 
     }
 
