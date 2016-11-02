@@ -5,6 +5,7 @@ data/tiled_src/*
 !data/tiled_src/get-sample-datas.sh
 data/tiled_dest/*
 data/france-communes/*
+target/*
 
 geoserver/*
 !geoserver/install-geoserver.sh
