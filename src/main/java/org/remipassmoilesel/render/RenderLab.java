@@ -2,13 +2,20 @@ package org.remipassmoilesel.render;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.ows.Layer;
+import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.wms.WMSUtils;
+import org.geotools.data.wms.WebMapServer;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.WMSLayer;
+import org.geotools.ows.ServiceException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
+import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.SLD;
 import org.opengis.feature.simple.SimpleFeature;
@@ -18,26 +25,30 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.google.common.collect.ComparisonChain.start;
-
 /**
- * Small trials on map rendering for Swing
+ * Small trials on map rendering for Swing. Goal is to create a custom Swing component, to experiment Geotools rendering speed
  * <p>
- * Goal is to create a custom Swing component, to experiment Geotools rendering
+ * You can drag the map and reset its position.
  * <p>
- * You can drag the map and reset its position
+ * With a single layer it is possible to render the map on the fly with little work,
+ * but with several layers optimisation is necessary.
  */
 public class RenderLab extends JPanel implements MouseListener, MouseMotionListener {
 
     private final DefaultGeographicCRS crs;
     private final ReentrantLock renderLock;
     private final ReferencedEnvelope originalBoundsToRender;
+    private Point2D imageTranslation;
     private BufferedImage contentImage;
     private Dimension contentDim;
     private ReferencedEnvelope mapBoundsToRender;
@@ -82,6 +93,8 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
 
         this.crs = DefaultGeographicCRS.WGS84;
 
+        imageTranslation = new Point2D.Double();
+
         // original layer max bounds: ReferencedEnvelope[-61.80976386945311 : 55.83669235015563, -21.389730741571007 : 51.08984197104998]
 
         // France metrop
@@ -97,21 +110,42 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
             setupMapContent();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ServiceException e) {
+            e.printStackTrace();
         }
-        renderImageInThread();
+
+        renderImageInThread(null);
 
     }
 
-    private void renderImageInThread() {
+    private void renderImageInThread(Runnable whenFinished) {
         new Thread(() -> {
             renderImage();
+
+            if (whenFinished != null) {
+                whenFinished.run();
+            }
         }).start();
     }
 
-    private void setupMapContent() throws IOException {
+    private void setupMapContent() throws IOException, ServiceException {
 
-        // retrieve a shapefile and add it to a mapcontent
-        Path shape = Paths.get("data/france-communes/communes-20160119.shp");
+        String shapePath = "data/france-communes/communes-20160119.shp";
+        String wmsUrl = "http://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities";
+        int wmsLayerIndex = 0;
+
+        mapContent = new MapContent();
+
+        // retrieve and add wms layer
+        WebMapServer wms = new WebMapServer(new URL(wmsUrl));
+        WMSCapabilities capabilities = wms.getCapabilities();
+        Layer[] namedLayers = WMSUtils.getNamedLayers(capabilities);
+
+        WMSLayer wmsLayer = new WMSLayer(wms, namedLayers[wmsLayerIndex]);
+        mapContent.addLayer(wmsLayer);
+
+        // retrieve a shape file and add it to a mapcontent
+        Path shape = Paths.get(shapePath);
 
         FileDataStore dataStore = FileDataStoreFinder.getDataStore(shape.toFile());
         SimpleFeatureSource shapeFileSource = dataStore
@@ -119,7 +153,6 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
 
         FeatureLayer shapeLayer = new FeatureLayer(shapeFileSource, SLD.createLineStyle(Color.blue, 0.2f));
 
-        mapContent = new MapContent();
         mapContent.addLayer(shapeLayer);
 
     }
@@ -168,6 +201,7 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
 
         renderLock.unlock();
 
+        repaint();
     }
 
     @Override
@@ -181,6 +215,9 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         if (contentImage != null) {
+
+            // translate image if needed
+            g2d.setTransform(AffineTransform.getTranslateInstance(imageTranslation.getX(), imageTranslation.getY()));
 
             // paint map
             g2d.drawImage(contentImage, 0, 0, contentDim.width, contentDim.height, null);
@@ -197,27 +234,60 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
             return;
         }
 
+        // get map move in pixel
         Point mpos = e.getPoint();
-        double mx = (lastDragPoint.x - mpos.x) / 100d;
-        double my = (lastDragPoint.y - mpos.y) / 100d;
+        double mxpx = lastDragPoint.x - mpos.x;
+        double mypx = lastDragPoint.y - mpos.y;
 
-//        System.out.println();
-//        System.out.println(mx);
-//        System.out.println(my);
+        // get map move in world unit
+        double mxwld;
+        double mywld;
+        try {
+
+            AffineTransform worldToScreen = RendererUtilities.worldToScreenTransform(mapBoundsToRender, new Rectangle(contentDim));
+            AffineTransform screenToWorld = worldToScreen.createInverse();
+
+            mxwld = mxpx * screenToWorld.getScaleX();
+            mywld = mypx * screenToWorld.getScaleY();
+
+        } catch (NoninvertibleTransformException e1) {
+            throw new RuntimeException();
+        }
 
         lastDragPoint = mpos;
 
-        double x1 = mapBoundsToRender.getMinX() + mx;
-        double x2 = mapBoundsToRender.getMaxX() + mx;
-        double y1 = mapBoundsToRender.getMinY() - my;
-        double y2 = mapBoundsToRender.getMaxY() - my;
+        // adapt map bounds to render
+        double x1 = mapBoundsToRender.getMinX() + mxwld;
+        double x2 = mapBoundsToRender.getMaxX() + mxwld;
+        double y1 = mapBoundsToRender.getMinY() + mywld;
+        double y2 = mapBoundsToRender.getMaxY() + mywld;
 
         mapBoundsToRender.setBounds(new ReferencedEnvelope(x1, x2, y1, y2, crs));
 
-//        System.out.println("mapBoundsToRender");
-//        System.out.println(mapBoundsToRender);
+        // adapt image translation
+        imageTranslation.setLocation(imageTranslation.getX() - mxpx,
+                imageTranslation.getY() - mypx);
 
-        renderImageInThread();
+        repaint();
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+        // render image
+        renderImageInThread(() -> {
+            // reset translation
+            this.imageTranslation = new Point2D.Double();
+
+            repaint();
+        });
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        // reset last drag point to avoid drag errors
+        this.lastDragPoint = null;
     }
 
     /**
@@ -225,20 +295,7 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
      */
     private void resetContent() {
         this.mapBoundsToRender = new ReferencedEnvelope(originalBoundsToRender);
-        renderImageInThread();
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-        // reset last drag point to avoid drag errors
-        this.lastDragPoint = null;
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
+        renderImageInThread(null);
     }
 
     @Override

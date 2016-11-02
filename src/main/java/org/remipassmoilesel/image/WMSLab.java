@@ -32,7 +32,11 @@ import org.geotools.swing.wms.WMSLayerChooser;
 public class WMSLab extends JFrame {
 
     public static void main(String[] args) throws Exception {
+
         showInformationsAbout("http://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities");
+
+        promptAndShow();
+
     }
 
     private static void showInformationsAbout(String url) throws IOException, ServiceException {
