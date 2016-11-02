@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.google.common.collect.ComparisonChain.start;
+
 /**
  * Small trials on map rendering for Swing
  * <p>
@@ -91,26 +93,22 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
 
         this.renderLock = new ReentrantLock();
 
+        try {
+            setupMapContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         renderImageInThread();
 
     }
 
     private void renderImageInThread() {
         new Thread(() -> {
-            try {
-                renderImage();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            renderImage();
         }).start();
     }
 
-
-    private void renderImage() throws IOException {
-
-        if (renderLock.tryLock() == false) {
-            return;
-        }
+    private void setupMapContent() throws IOException {
 
         // retrieve a shapefile and add it to a mapcontent
         Path shape = Paths.get("data/france-communes/communes-20160119.shp");
@@ -119,13 +117,19 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
         SimpleFeatureSource shapeFileSource = dataStore
                 .getFeatureSource();
 
-        FeatureLayer layer = new FeatureLayer(shapeFileSource, SLD.createLineStyle(Color.blue, 0.2f));
+        FeatureLayer shapeLayer = new FeatureLayer(shapeFileSource, SLD.createLineStyle(Color.blue, 0.2f));
 
         mapContent = new MapContent();
-        mapContent.addLayer(layer);
+        mapContent.addLayer(shapeLayer);
 
-        // for debug purposes
-        // GuiUtils.showInWindow(content);
+    }
+
+
+    private void renderImage() {
+
+        if (renderLock.tryLock() == false) {
+            return;
+        }
 
         // get a renderer instance
         GTRenderer renderer = new StreamingRenderer();
