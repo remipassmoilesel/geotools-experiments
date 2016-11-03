@@ -2,18 +2,16 @@ package org.remipassmoilesel.draw;
 
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.data.collection.CollectionFeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.map.Layer;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
+import org.remipassmoilesel.utils.SimpleFeatureUtils;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class LineBuilder {
 
         // create a first point
         Point point = geometryFactory.createPoint(new Coordinate(worldPoint.getX(), worldPoint.getY()));
-        currentFeature = DefaultFeatureBuilder.getLineFeature(point);
+        currentFeature = SimpleFeatureUtils.getLineFeature(point);
 
         shapelist.add(currentFeature);
 

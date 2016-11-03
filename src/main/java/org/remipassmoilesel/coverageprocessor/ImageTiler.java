@@ -6,7 +6,6 @@ import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.Operations;
-import org.geotools.coverage.processing.operation.Scale;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.geometry.Envelope2D;
@@ -18,8 +17,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
 import java.io.IOException;
-
-import static sun.java2d.cmm.ColorTransform.In;
 
 /**
  * The ImageLab tutorial covered loading and rendering coverages; this tutorial will demonstrate performing basic

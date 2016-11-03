@@ -1,7 +1,6 @@
-package org.remipassmoilesel.draw;
+package org.remipassmoilesel.utils;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -10,12 +9,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * Created by remipassmoilesel on 02/11/16.
+ * Simple utilities to create some default features with just a geometry
  */
-public class DefaultFeatureBuilder {
+public class SimpleFeatureUtils {
 
-    private static ReentrantLock lock = new ReentrantLock();
-    private static SimpleFeatureBuilder fbuilder;
+    private static org.geotools.feature.simple.SimpleFeatureBuilder fbuilder;
 
     static {
         // create a feature type
@@ -30,18 +28,22 @@ public class DefaultFeatureBuilder {
         fbuilder = new org.geotools.feature.simple.SimpleFeatureBuilder(type);
     }
 
-    public static String getFeatureId(String prefix){
+    public static String getFeatureId(String prefix) {
         return prefix + "_" + System.nanoTime();
     }
 
     public static SimpleFeature getLineFeature(Geometry geom) {
+        return buildFeature(geom, "line");
+    }
 
-        lock.lock();
+    public static SimpleFeature getPointFeature(Geometry geom) {
+        return buildFeature(geom, "point");
+    }
+
+    private static synchronized SimpleFeature buildFeature(Geometry geom, String prefix) {
 
         fbuilder.add(geom);
-        SimpleFeature feature = fbuilder.buildFeature(getFeatureId("line"));
-
-        lock.unlock();
+        SimpleFeature feature = fbuilder.buildFeature(getFeatureId(prefix));
 
         return feature;
     }

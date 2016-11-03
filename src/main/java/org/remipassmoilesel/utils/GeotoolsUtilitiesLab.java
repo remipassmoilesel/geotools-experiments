@@ -6,7 +6,7 @@ import org.geotools.xml.xsi.XSISimpleTypes;
 /**
  * Created by remipassmoilesel on 25/10/16.
  */
-public class GeotoolsUtilities {
+public class GeotoolsUtilitiesLab {
 
     public static void main(String[] args) {
 
