@@ -3,36 +3,80 @@ package org.remipassmoilesel.draw.optimized;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
+import org.geotools.renderer.lite.StreamingRenderer;
+import org.remipassmoilesel.draw.RendererBuilder;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Manager for map layers. Allow to render one layer at a time, and to store rendered images.
+ * Manager for map layers. Allow to renderer one layer at a time, and to store rendered images.
  */
 public class MapLayersManager {
 
     private final ArrayList<LayerContainer> layers;
-    private final MapContent globalMapContent;
+    private final MapContent mapContent;
+    private final ReentrantLock renderLock;
+    private final StreamingRenderer renderer;
+
     private ReferencedEnvelope mapBoundsToRender;
     private Dimension renderedDimensions;
 
     public MapLayersManager() {
         this.layers = new ArrayList<>();
-        this.globalMapContent = new MapContent();
+        this.mapContent = new MapContent();
+
+        this.renderLock = new ReentrantLock();
+
+        this.renderer = RendererBuilder.getRenderer();
+        renderer.setMapContent(mapContent);
     }
 
     public void addLayer(Layer layer) {
         layers.add(new LayerContainer(layer));
-        globalMapContent.addLayer(layer);
+        mapContent.addLayer(layer);
     }
 
     public void renderLayer(int id) {
-        LayerContainer ctr = layers.get(id);
-        ctr.setRenderedDimensions(renderedDimensions);
-        ctr.setMapBoundsToRender(mapBoundsToRender);
-        ctr.renderLayer();
+
+        // lock rendering
+        if (renderLock.tryLock() == false) {
+            return;
+        }
+
+        LayerContainer layer = layers.get(id);
+        String layerId = layer.getLayerId();
+
+        // monitor time of rendering
+        System.out.println(layerId + ": Start rendering ");
+        long startRender = System.currentTimeMillis();
+
+        // hide other layers
+        for (int i = 0; i < layers.size(); i++) {
+            LayerContainer lay = layers.get(i);
+            if (i == id) {
+                lay.setVisible(true);
+            } else {
+                lay.setVisible(false);
+            }
+        }
+
+        BufferedImage renderedImage = new BufferedImage(renderedDimensions.width, renderedDimensions.height,
+                BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = renderedImage.createGraphics();
+        renderer.paint(g2d, new Rectangle(renderedDimensions), mapBoundsToRender);
+
+        layer.setRenderedImage(renderedImage);
+
+        // display time of rendering
+        long renderTime = System.currentTimeMillis() - startRender;
+        System.out.println(layerId + ": Stop rendering, " + renderTime + " ms");
+
+        renderLock.unlock();
+
     }
 
     public void renderLayerLater(int id, Runnable whenFinished) {
@@ -57,7 +101,7 @@ public class MapLayersManager {
     }
 
     public MapContent getMapContent() {
-        return globalMapContent;
+        return mapContent;
     }
 
     public void setMapBoundsToRender(ReferencedEnvelope mapBoundsToRender) {
