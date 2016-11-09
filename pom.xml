@@ -94,6 +94,14 @@
             <version>${geotools.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.geotools/gt-caching -->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-caching</artifactId>
+            <version>8.0-M0</version>
+        </dependency>
+
+
     </dependencies>
 
     <repositories>

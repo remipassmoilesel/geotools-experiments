@@ -74,6 +74,12 @@ public class GuiUtils {
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }
+
+        return getDefaultRGBRasterStyle(cov);
+    }
+
+    public static org.geotools.styling.Style getDefaultRGBRasterStyle(GridCoverage2D cov) {
+
         // We need at least three bands to create an RGB style
         int numBands = cov.getNumSampleDimensions();
         if (numBands < 3) {
