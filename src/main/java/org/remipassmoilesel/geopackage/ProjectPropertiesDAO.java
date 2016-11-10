@@ -3,7 +3,7 @@ package org.remipassmoilesel.geopackage;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.Transaction;
 import org.geotools.jdbc.JDBCDataStore;
-import org.remipassmoilesel.utils.SqlUtils;
+import org.remipassmoilesel.utils.SqliteUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,8 +37,8 @@ public class ProjectPropertiesDAO {
         connection = datastore.getConnection(Transaction.AUTO_COMMIT);
 
         // try to find the properties table, or create it
-        if (SqlUtils.getTableList(connection).contains(TABLE_NAME) == false) {
-            SqlUtils.runScript("/create_properties.sql", connection);
+        if (SqliteUtils.getTableList(connection).contains(TABLE_NAME) == false) {
+            SqliteUtils.runScript("/create_properties.sql", connection);
         }
 
     }

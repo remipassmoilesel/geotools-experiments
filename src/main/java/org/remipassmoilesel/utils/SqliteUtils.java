@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by remipassmoilesel on 08/11/16.
  */
-public class SqlUtils {
+public class SqliteUtils {
 
 
     public static void showSqliteTables(Connection connection) {
@@ -66,7 +66,7 @@ public class SqlUtils {
     }
 
     public static void runScript(String name, Connection connection) throws SQLException {
-        InputStream script = SqlUtils.class.getResourceAsStream(name);
+        InputStream script = SqliteUtils.class.getResourceAsStream(name);
         if (script == null) {
             throw new IllegalArgumentException("Unable to find resource: " + name);
         }

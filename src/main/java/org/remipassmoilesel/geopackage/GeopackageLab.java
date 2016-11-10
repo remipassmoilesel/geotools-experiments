@@ -1,10 +1,14 @@
 package org.remipassmoilesel.geopackage;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.Transaction;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -15,14 +19,14 @@ import org.geotools.geopkg.mosaic.GeoPackageReader;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.map.GridCoverageLayer;
 import org.geotools.map.MapContent;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.remipassmoilesel.utils.GuiUtils;
 import org.remipassmoilesel.utils.MiscUtils;
-import org.remipassmoilesel.utils.SqlUtils;
+import org.remipassmoilesel.utils.SqliteUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -42,24 +46,28 @@ import static com.google.common.io.Resources.getResource;
 public class GeopackageLab {
 
     //    public static final CoordinateReferenceSystem crs = DefaultEngineeringCRS.CARTESIAN_2D;
-    public static final CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
+    private static final CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
+    private static final GeometryFactory geom = JTSFactoryFinder.getGeometryFactory();
 
     public static void main(String[] args) throws IOException, FactoryException, SQLException {
 
         Path dbpath = Paths.get("data/geopk.db");
 
         // create a geopackage
-        cleanExistingDatabase(dbpath);
-        createGeopkg(dbpath);
-
-        // display a geopackage
-//        readGeopkg(dbpath);
+        //cleanExistingGeopackage(dbpath);
+        //createGeopkg(dbpath);
 
         // misc trials on jdbc
         //jdbcLab(dbpath);
 
+        // write access
+        modifyGeopkg(dbpath);
+
+        // display informations about geopackage
+        readGeopkg(dbpath);
+
         // add project metadatas
-        addProjectMetadatas(dbpath);
+        // addProjectMetadatas(dbpath);
 
     }
 
@@ -84,7 +92,7 @@ public class GeopackageLab {
 
     }
 
-    public static void cleanExistingDatabase(Path dbpath) throws IOException {
+    public static void cleanExistingGeopackage(Path dbpath) throws IOException {
         // clean previous database
         if (Files.exists(dbpath)) {
             Files.delete(dbpath);
@@ -98,12 +106,11 @@ public class GeopackageLab {
         GeoPackage geopkg = new GeoPackage(dbpath.toFile());
         geopkg.init();
 
-        GeometryFactory geom = JTSFactoryFinder.getGeometryFactory();
-
-        // store features
+        // first feature set
         FeatureEntry fe = new FeatureEntry();
-        fe.setDataType(Entry.DataType.Feature);
-        fe.setTableName("points");
+
+        // will be overrided by feature name
+        fe.setTableName("featureset1");
 
         SimpleFeatureTypeBuilder tbuilder = new SimpleFeatureTypeBuilder();
         tbuilder.setName("point");
@@ -112,8 +119,6 @@ public class GeopackageLab {
         tbuilder.setCRS(crs);
         tbuilder.add("geom", com.vividsolutions.jts.geom.Point.class);
         tbuilder.add("layer-id", String.class);
-        tbuilder.add("layer-name", String.class);
-
 
         SimpleFeatureType ftype = tbuilder.buildFeatureType();
         SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(ftype);
@@ -126,7 +131,6 @@ public class GeopackageLab {
             fbuilder.add(geom.createPoint(new Coordinate(i, i)));
 
             fbuilder.add("id" + i);
-            fbuilder.add("Layer name " + i);
 
             coll.add(fbuilder.buildFeature("fid" + i));
 
@@ -134,9 +138,38 @@ public class GeopackageLab {
 
         geopkg.add(fe, coll);
 
+        // second feature set, generic
+        FeatureEntry fe2 = new FeatureEntry();
+        fe.setDataType(Entry.DataType.Feature);
+
+        tbuilder.setName("points2");
+
+        // geometry is mandatory to avoid nullpointerexceptions
+        tbuilder.setCRS(crs);
+        tbuilder.add("geom", Geometry.class);
+        tbuilder.add("layer-id", String.class);
+
+        SimpleFeatureType ftype2 = tbuilder.buildFeatureType();
+        SimpleFeatureBuilder fbuilder2 = new SimpleFeatureBuilder(ftype2);
+
+        DefaultFeatureCollection coll2 = new DefaultFeatureCollection();
+
+        for (int i = 0; i < 10; i++) {
+
+            // geometry can be null here
+            fbuilder2.add(geom.createPoint(new Coordinate(i, i)));
+
+            fbuilder2.add("id" + i);
+
+            coll2.add(fbuilder2.buildFeature("fid" + i));
+
+        }
+
+        geopkg.add(fe2, coll2);
+
         // store tiles
         TileEntry e = new TileEntry();
-        e.setTableName("layer_1");
+        e.setTableName("layers");
         e.setBounds(new ReferencedEnvelope(-180, 180, -90, 90, crs));
         e.getTileMatricies().add(new TileMatrix(0, 1, 1, 256, 256, 1d, 1d));
 
@@ -161,12 +194,115 @@ public class GeopackageLab {
 
     }
 
+    public static void modifyGeopkg(Path dbpath) throws IOException, FactoryException {
+
+        Map<String, String> params = new HashMap();
+        params.put("dbtype", "geopkg");
+        params.put("database", dbpath.toString());
+
+        JDBCDataStore datastore = (JDBCDataStore) DataStoreFinder.getDataStore(params);
+
+        // create features to add
+
+        SimpleFeatureTypeBuilder tbuilder = new SimpleFeatureTypeBuilder();
+        tbuilder.setName("point");
+
+        // geometry is mandatory to avoid nullpointerexceptions
+        tbuilder.setCRS(crs);
+        tbuilder.add("geom", com.vividsolutions.jts.geom.Point.class);
+        tbuilder.add("layer-id", String.class);
+
+        SimpleFeatureType ftype = tbuilder.buildFeatureType();
+        SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(ftype);
+
+        DefaultFeatureCollection coll = new DefaultFeatureCollection();
+
+        for (int i = 15; i < 30; i++) {
+
+            // geometry can be null here
+            fbuilder.add(geom.createPoint(new Coordinate(i, i)));
+
+            fbuilder.add("id" + i);
+
+            coll.add(fbuilder.buildFeature("fid" + i));
+
+        }
+
+        String typeName = datastore.getTypeNames()[0];
+        SimpleFeatureSource source = datastore.getFeatureSource(typeName);
+
+        System.out.println();
+        System.out.println("source.getClass()");
+        System.out.println(source.getClass());
+        System.out.println();
+
+        if (source instanceof SimpleFeatureStore) {
+            SimpleFeatureStore store = (SimpleFeatureStore) source; // write access!
+            store.addFeatures(coll);
+//            store.removeFeatures(filter); // filter is like SQL WHERE
+//            store.modifyFeature(attribute, value, filter);
+        }
+
+    }
+
     public static void readGeopkg(Path dbpath) throws IOException, FactoryException {
 
         GeoPackageReader reader = new GeoPackageReader(dbpath.toFile(), null);
+
+        System.out.println("Arrays.asList(reader.getGridCoverageNames())");
         System.out.println(Arrays.asList(reader.getGridCoverageNames()));
 
         GridCoverage2D gc = reader.read(reader.getGridCoverageNames()[0], null);
+
+        Map<String, String> params = new HashMap();
+        params.put("dbtype", "geopkg");
+        params.put("database", dbpath.toString());
+
+        JDBCDataStore datastore = (JDBCDataStore) DataStoreFinder.getDataStore(params);
+
+        HashMap<String, Object> informations = new HashMap<>();
+        informations.put("datastore.getDatabaseSchema()", datastore.getDatabaseSchema());
+        informations.put("datastore.getClassToSqlTypeMappings()", datastore.getClassToSqlTypeMappings());
+        informations.put("datastore.getDataSource()", datastore.getDataSource());
+        informations.put("datastore.getFilterCapabilities()", datastore.getFilterCapabilities());
+        informations.put("datastore.getSQLDialect()", datastore.getSQLDialect());
+        informations.put("datastore.getVirtualTables()", datastore.getVirtualTables());
+        informations.put("datastore.getClassToSqlTypeMappings()", datastore.getClassToSqlTypeMappings());
+        informations.put("datastore.getNames()", datastore.getNames());
+        informations.put("datastore.getTypeNames()", datastore.getTypeNames());
+        informations.put("datastore.class", datastore.getClass());
+
+        Iterator<String> iter = informations.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = iter.next();
+            Object val = informations.get(key);
+            System.out.println();
+            System.out.println(key);
+            System.out.println(val);
+        }
+
+        List<Name> names = datastore.getNames();
+        System.out.println("### " + names.get(0));
+        SimpleFeatureSource source = datastore.getFeatureSource(names.get(0));
+        SimpleFeatureIterator it = source.getFeatures().features();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+        it.close();
+
+        System.out.println("### " + names.get(1));
+        source = datastore.getFeatureSource(names.get(1));
+        it = source.getFeatures().features();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+
+        it.close();
+
+        // Beware: always dispose datastores
+        datastore.dispose();
+
+        reader.dispose();
 
         MapContent content = new MapContent();
         content.addLayer(new GridCoverageLayer(gc, GuiUtils.getDefaultRGBRasterStyle(gc)));
@@ -184,7 +320,10 @@ public class GeopackageLab {
 
         Connection connection = datastore.getConnection(Transaction.AUTO_COMMIT);
 
-        SqlUtils.showSqliteTables(connection);
+        SqliteUtils.showSqliteTables(connection);
+
+        // Beware: always dispose datastores
+        datastore.dispose();
     }
 
 

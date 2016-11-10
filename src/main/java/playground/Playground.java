@@ -1,7 +1,9 @@
 package playground;
 
 import org.geotools.coverage.CoverageFactoryFinder;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.geometry.jts.JTSFactoryFinder;
@@ -22,6 +24,7 @@ import org.remipassmoilesel.utils.GuiBuilder;
 
 import javax.swing.undo.UndoManager;
 import java.awt.*;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 
 /**
@@ -34,6 +37,17 @@ public class Playground {
 
     public static void main(String[] args) throws FactoryException {
 
+
+        System.out.println(System.nanoTime());
+
+        System.out.println(CRS.decode("EPSG:404000"));
+
+        System.out.println(CRS.parseWKT("LOCAL_CS[\"Wildcard 2D cartesian plane in metric unit\", \n" +
+                "  LOCAL_DATUM[\"Unknown\", 0], \n" +
+                "  UNIT[\"m\", 1.0], \n" +
+                "  AXIS[\"x\", EAST], \n" +
+                "  AXIS[\"y\", NORTH], \n" +
+                "  AUTHORITY[\"EPSG\",\"404000\"]]"));
     }
 
 
