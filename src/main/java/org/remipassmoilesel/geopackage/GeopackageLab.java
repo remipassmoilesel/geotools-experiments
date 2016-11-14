@@ -290,6 +290,11 @@ public class GeopackageLab {
         }
         it.close();
 
+        // Get the bounds of features. Do not correspond to the value stored in geopackage with FeatureEntry.setBounds method
+        // Stored bounds have to be manually updated
+        System.out.println(source.getBounds());
+        System.out.println(source.getFeatures().getBounds());
+
         System.out.println("### " + names.get(1));
         source = datastore.getFeatureSource(names.get(1));
         it = source.getFeatures().features();
