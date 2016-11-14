@@ -52,6 +52,9 @@ public class StyleMemoLab {
         Style style = styleFactory.createStyle();
         style.featureTypeStyles().add(fts);
 
+        // change properties
+        SLD.setLineColour(style, Color.blue);
+
 
         // wrap several symbolizers in one SLD sheet
         SLD.wrapSymbolizers();

@@ -94,7 +94,7 @@ public class FilterLab {
     }
 
     public static void displayResults(FeatureStore featurestore, Filter f) throws IOException {
-        
+
         FeatureIterator it = featurestore.getFeatures(f).features();
 
         System.out.println();

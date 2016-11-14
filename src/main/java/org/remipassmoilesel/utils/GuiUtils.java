@@ -4,6 +4,7 @@ import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.styling.*;
 import org.geotools.swing.JMapFrame;
@@ -21,6 +22,18 @@ public class GuiUtils {
 
     private static StyleFactory sf = CommonFactoryFinder.getStyleFactory();
     private static FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+
+    /**
+     * Show a layer in a window
+     *
+     * @param layer
+     */
+    public static void showInWindow(Layer layer) {
+        MapContent content = new MapContent();
+        content.addLayer(layer);
+        showInWindow(content);
+    }
+
 
     /**
      * Show a MapContent in a window

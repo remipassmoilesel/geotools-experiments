@@ -11,7 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <geotools.version>15.2</geotools.version>
+        <geotools.version>16.0</geotools.version>
     </properties>
 
     <dependencies>
@@ -101,6 +101,17 @@
             <version>8.0-M0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-xml</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-xsd-sld</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.geotools</groupId>
