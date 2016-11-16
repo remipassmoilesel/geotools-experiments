@@ -9,7 +9,7 @@
       <ogc:Filter>
         <ogc:PropertyIsEqualTo>
           <ogc:PropertyName>style_id</ogc:PropertyName>
-          <ogc:Literal>style_35393864829531</ogc:Literal>
+          <ogc:Literal>style_4654695744470</ogc:Literal>
         </ogc:PropertyIsEqualTo>
       </ogc:Filter>
       <sld:PointSymbolizer>
@@ -31,7 +31,7 @@
       <ogc:Filter>
         <ogc:PropertyIsEqualTo>
           <ogc:PropertyName>style_id</ogc:PropertyName>
-          <ogc:Literal>style_35393864892501</ogc:Literal>
+          <ogc:Literal>style_4654695789037</ogc:Literal>
         </ogc:PropertyIsEqualTo>
       </ogc:Filter>
       <sld:PointSymbolizer>
@@ -53,7 +53,7 @@
       <ogc:Filter>
         <ogc:PropertyIsEqualTo>
           <ogc:PropertyName>style_id</ogc:PropertyName>
-          <ogc:Literal>style_35393864898240</ogc:Literal>
+          <ogc:Literal>style_4654695793278</ogc:Literal>
         </ogc:PropertyIsEqualTo>
       </ogc:Filter>
       <sld:PointSymbolizer>
