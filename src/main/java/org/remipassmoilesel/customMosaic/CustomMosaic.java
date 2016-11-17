@@ -27,10 +27,12 @@ import java.util.Iterator;
  * Simple trial to create a mosaic from external graphics.
  * <p>
  * Results: Very fluid, but for 55 pictures ~ 22MP total it use 1.5GB heap space
+ * <p>
+ * To work on it: scale change, icons always keep original size
  */
 public class CustomMosaic {
 
-    public static final Path ROOT_FOLDER = Paths.get("data/customMosaic");
+    public static final Path ROOT_FOLDER = Paths.get("data/arbitrary-pictures-2");
     private static final String TILE_ID_FIELD_NAME = "tile_id";
     private static Style style;
     private static DefaultFeatureCollection featureCollection;
@@ -89,6 +91,11 @@ public class CustomMosaic {
             System.out.println("Processing: " + p);
 
             String tileId = p.getFileName().toString();
+            if (tileId.endsWith(".jpg") == false &&
+                tileId.endsWith(".jpeg") == false &&
+                tileId.endsWith(".png") == false) {
+                continue;
+            }
             createTile(new Coordinate(x, y), tileId);
 
             if (w < width) {

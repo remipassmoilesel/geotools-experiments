@@ -3,8 +3,10 @@ package org.remipassmoilesel.geopackage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.commons.io.FileUtils;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.DataUtilities;
 import org.geotools.data.Transaction;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -12,6 +14,8 @@ import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.gce.image.WorldImageFormat;
+import org.geotools.gce.image.WorldImageReader;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.geopkg.*;
@@ -20,6 +24,7 @@ import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.map.GridCoverageLayer;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
@@ -30,7 +35,9 @@ import org.remipassmoilesel.utils.SqliteUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -190,8 +197,38 @@ public class GeopackageLab {
             geopkg.add(e, t);
         }
 
+
+        // add a raster, not functional for now
+        RasterEntry re = new RasterEntry();
+        re.setTableName("raster");
+        re.setSrid(null);
+
+        WorldImageFormat format = new WorldImageFormat();
+        WorldImageReader reader = format.getReader(setUpPNG());
+        GridCoverage2D cov = reader.read(null);
+
+        RasterEntry entry = new RasterEntry();
+        entry.setTableName("Pk50095");
+
+        geopkg.add(entry, cov, format);
+
+        GridCoverageReader r = geopkg.reader(entry, format);
+        GridCoverage2D c = (GridCoverage2D) r.read(null);
+
+
         geopkg.close();
 
+
+    }
+
+    private static URL setUpPNG() throws IOException {
+        File d = File.createTempFile("Pk50095", "png", new File("target"));
+        d.delete();
+        d.mkdirs();
+
+//        FileUtils.copyURLToFile(TestData.url(this, "Pk50095.png"), new File(d, "Pk50095.png"));
+//        FileUtils.copyURLToFile(TestData.url(this, "Pk50095.pgw"), new File(d, "Pk50095.pgw"));
+        return DataUtilities.fileToURL(new File(d, "Pk50095.png"));
     }
 
     public static void modifyGeopkg(Path dbpath) throws IOException, FactoryException {

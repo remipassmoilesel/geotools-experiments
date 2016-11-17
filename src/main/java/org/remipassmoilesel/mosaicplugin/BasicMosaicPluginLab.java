@@ -1,4 +1,4 @@
-package org.remipassmoilesel.image;
+package org.remipassmoilesel.mosaicplugin;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -56,57 +56,65 @@ import java.util.Map;
  * <p>
  * Index and properties files must have the name of their directory. These files are not mandatory, they will be generated if missing.
  */
-public class MosaicPluginLab {
+public class BasicMosaicPluginLab {
 
-    public static void main(String[] args) throws IOException, FactoryException {
+    public static void main(String[] args) throws IOException, FactoryException, InterruptedException {
 
-//        writeMosaic("data/geoserver-mosaic-sample", "data/generated.jpg");
+        Thread.sleep(3000);
+
+        // writeMosaic(Paths.get("data/arbitrary-pictures-1"), Paths.get("data/generated.jpg"));
 
         Coordinate[] coords = new Coordinate[]{
                 new Coordinate(10, 20),
                 new Coordinate(20, 30),
                 new Coordinate(30, 40)
         };
-        buildMosaic("data/arbitrary-images", coords);
+//        buildMosaic("data/arbitrary-pictures-1", coords);
 
-        showMosaic("data/arbitrary-images");
+        showMosaic(Paths.get("data/arbitrary-pictures-1/arbitrary-pictures-1.shp"));
     }
 
     /**
      * Read a mosaic and write it to an image
      *
-     * @param pathSrc
-     * @param pathDest
+     * @param src
+     * @param dest
      * @throws IOException
      */
-    public static void writeMosaic(String pathSrc, String pathDest) throws IOException {
+    public static void writeMosaic(Path src, Path dest) throws IOException {
+
+        Files.deleteIfExists(dest);
 
         ImageMosaicFormatFactory factory = new ImageMosaicFormatFactory();
         ImageMosaicFormat format = (ImageMosaicFormat) factory.createFormat();
-        ImageMosaicReader reader = format.getReader(new File(pathSrc));
+        ImageMosaicReader reader = format.getReader(src.toFile());
 
         GridCoverage2D coverage = reader.read(null);
 
         RenderedImage image = coverage.getRenderedImage();
-        ImageIO.write(image, "jpg", new File(pathDest));
+        ImageIO.write(image, "jpg", dest.toFile());
 
     }
 
     /**
      * Read a mosaic and display it on a window
      *
-     * @param pathSrc
+     * @param src
      * @throws IOException
      */
-    public static void showMosaic(String pathSrc) throws IOException {
+    public static void showMosaic(Path src) throws IOException {
 
         ImageMosaicFormatFactory factory = new ImageMosaicFormatFactory();
         ImageMosaicFormat format = (ImageMosaicFormat) factory.createFormat();
-        ImageMosaicReader reader = format.getReader(new File(pathSrc));
+        ImageMosaicReader reader = format.getReader(src.toString());
+        GridCoverage2D coverage = reader.read(null);
+        GridCoverageLayer layer = new GridCoverageLayer(coverage, GuiUtils.getDefaultRGBRasterStyle(reader));
 
-        Layer rasterLayer = new GridReaderLayer(reader, GuiUtils.getDefaultRGBRasterStyle(reader));
+        System.out.println(reader);
+        System.out.println(coverage);
+        System.out.println(layer);
 
-        GuiBuilder.newMap("Mosaic: " + pathSrc).addLayer(rasterLayer).show();
+        GuiUtils.showInWindow(layer);
 
     }
 

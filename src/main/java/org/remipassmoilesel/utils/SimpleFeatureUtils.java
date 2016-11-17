@@ -40,10 +40,10 @@ public class SimpleFeatureUtils {
         return buildFeature(geom, "point");
     }
 
-    private static synchronized SimpleFeature buildFeature(Geometry geom, String prefix) {
+    private static synchronized SimpleFeature buildFeature(Geometry geom, String idPrefix) {
 
         fbuilder.add(geom);
-        SimpleFeature feature = fbuilder.buildFeature(getFeatureId(prefix));
+        SimpleFeature feature = fbuilder.buildFeature(getFeatureId(idPrefix));
 
         return feature;
     }

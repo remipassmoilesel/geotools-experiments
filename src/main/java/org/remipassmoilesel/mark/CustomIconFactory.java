@@ -50,10 +50,10 @@ public class CustomIconFactory implements ExternalGraphicFactory {
             // expression is a custom icon
             if (protInd == 0) {
                 String path = Paths.get(".", wellKnownName.substring(PROTOCOL_ID.length(), wellKnownName.length())).toAbsolutePath().toString();
-                System.out.println("Returning custom icon: " + path);
+                System.out.println("CustomIconFactory: Returning custom icon: " + path);
                 return new ImageIcon(path);
             } else {
-                LOGGER.log(Level.WARNING, "Malformed icon name: " + wellKnownName);
+                LOGGER.log(Level.WARNING, "CustomIconFactory: Malformed icon name: " + wellKnownName);
                 return null;
             }
         }

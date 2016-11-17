@@ -1,4 +1,4 @@
-package org.remipassmoilesel.customMosaic;
+package org.remipassmoilesel.jts;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -13,7 +13,6 @@ import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.styling.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.identity.FeatureId;
@@ -21,11 +20,7 @@ import org.remipassmoilesel.utils.GuiUtils;
 
 import java.awt.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Created by remipassmoilesel on 16/11/16.
@@ -37,6 +32,9 @@ public class CoordinatesTrial {
     private static final GeometryFactory geom = JTSFactoryFinder.getGeometryFactory();
 
     private static final SimpleFeatureBuilder fbuilder;
+    private static FeatureTypeStyle featureTypeStyle;
+    private static DefaultFeatureCollection featureCollection;
+
 
     static {
         // create a feature type
@@ -55,14 +53,14 @@ public class CoordinatesTrial {
     public static void main(String[] args) throws IOException {
 
         Style style = sf.createStyle();
-        DefaultFeatureCollection coll = new DefaultFeatureCollection();
-        FeatureLayer layer = new FeatureLayer(coll, style);
+        featureCollection = new DefaultFeatureCollection();
+        FeatureLayer layer = new FeatureLayer(featureCollection, style);
 
-        FeatureTypeStyle featureTypeStyle = sf.createFeatureTypeStyle();
+        featureTypeStyle = sf.createFeatureTypeStyle();
         style.featureTypeStyles().add(featureTypeStyle);
 
-        createPoint(new Coordinate(0, 0), Color.blue, coll, featureTypeStyle);
-        createPoint(new Coordinate(200, 200), Color.red, coll, featureTypeStyle);
+        createPoint(new Coordinate(0, 0), Color.blue);
+        createPoint(new Coordinate(200, 200), Color.red);
 
         System.out.println(style);
         System.out.println(style.featureTypeStyles());
@@ -72,11 +70,11 @@ public class CoordinatesTrial {
 
     }
 
-    public static SimpleFeature createPoint(Coordinate coords, Color color, DefaultFeatureCollection coll, FeatureTypeStyle featureTypeStyle) {
+    public static SimpleFeature createPoint(Coordinate coords, Color color) {
 
         fbuilder.add(geom.createPoint(coords));
         SimpleFeature feature = fbuilder.buildFeature(null);
-        coll.add(feature);
+        featureCollection.add(feature);
 
         System.out.println(feature.getIdentifier());
 

@@ -1,4 +1,4 @@
-package org.remipassmoilesel.image;
+package org.remipassmoilesel.mosaicplugin;
 
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.grid.GridCoverage2D;
