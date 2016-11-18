@@ -56,15 +56,14 @@ public class ImageMosaicJDBCLab {
 
         loadConfiguration();
 
-//        createSqlTemplates();
+        //createSqlTemplates();
 
-        createEmptyDatabase();
+        //createEmptyDatabase();
 
-        importArbitraryTiles();
+        //importArbitraryTiles();
 
         read();
-
-
+        
     }
 
     /**
@@ -89,7 +88,7 @@ public class ImageMosaicJDBCLab {
 //        System.out.println(connection);
 //        System.out.println(SqliteUtils.getTableList(connection));
 
-        System.out.println("Use configuration: ");
+        System.out.println("Used configuration: ");
         System.out.println(config.getDataSourceParams());
 
         // First, get a reader
@@ -98,9 +97,13 @@ public class ImageMosaicJDBCLab {
         // 2) java.io.File
         // 3) java.lang.String (A filename string or an url string)
 
-        AbstractGridFormat format = GridFormatFinder.findFormat(CONFIG_FILE.toString());
+        // if you use the original version of plugin
+        //AbstractGridFormat format = GridFormatFinder.findFormat(CONFIG_FILE.toString());
+        //ImageMosaicJDBCReader reader = (ImageMosaicJDBCReader) format.getReader(CONFIG_FILE.toString(), null);
 
-        ImageMosaicJDBCReader reader = (ImageMosaicJDBCReader) format.getReader(CONFIG_FILE.toString(), null);
+        AbstractGridFormat format = GridFormatFinder.findFormat(config);
+
+        ImageMosaicJDBCReader reader = (ImageMosaicJDBCReader) format.getReader(config, null);
 
         // get a parameter object for a grid geometry
         ParameterValue<GridGeometry2D> gg = AbstractGridFormat.READ_GRIDGEOMETRY2D.createValue();
