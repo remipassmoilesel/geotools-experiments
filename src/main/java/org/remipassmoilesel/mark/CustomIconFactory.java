@@ -1,16 +1,11 @@
 package org.remipassmoilesel.mark;
 
 import org.geotools.renderer.style.ExternalGraphicFactory;
-import org.geotools.renderer.style.ImageGraphicFactory;
-import org.geotools.renderer.style.MarkFactory;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.Feature;
 import org.opengis.filter.expression.Expression;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.GeneralPath;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,12 +13,15 @@ import java.util.logging.Logger;
 /**
  * Custom image factory implementation.
  * <p>
- * Should be usefull to provide icons without use absolute paths, in order to share projects without providing icons.
+ * Should be usefull to provide icons without use absolute paths, in order to share projects without
+ * providing icons.
  * <p>
  * But also break interoperability.
  * <p>
  * Here we are using a custom mime type to detect custom icons, and a custom URL prefix because
  * if we don't provide a URL at icon creation, errors prevent creation.
+ * <p>
+ * Referenced in resources/meta-inf/services
  */
 public class CustomIconFactory implements ExternalGraphicFactory {
 

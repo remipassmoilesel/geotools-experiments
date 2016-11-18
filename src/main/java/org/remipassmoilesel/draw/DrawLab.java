@@ -48,7 +48,7 @@ public class DrawLab extends RenderLab {
             return;
         }
 
-//        showCoordinates(e);
+        showCoordinates(e);
 
         Point2D worldPosition;
 

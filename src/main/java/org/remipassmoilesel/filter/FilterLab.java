@@ -36,7 +36,7 @@ import java.util.Map;
 import static org.remipassmoilesel.geopackage.ShapeIdIssue.geomBuilder;
 
 /**
- * Created by remipassmoilesel on 13/11/16.
+ * Misc trials around filters
  */
 public class FilterLab {
 
@@ -187,7 +187,7 @@ public class FilterLab {
     }
 
     public static void displayFeatures(Path db, String featureId) throws IOException {
-        
+
         Map<String, String> params = new HashMap();
         params.put("dbtype", "geopkg");
         params.put("database", db.toString());
@@ -212,5 +212,5 @@ public class FilterLab {
 
         datastore.dispose();
     }
-    
+
 }

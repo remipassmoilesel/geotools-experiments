@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by remipassmoilesel on 08/11/16.
+ * Simple trial on DAO. Prefer use of ORM framework obviously.
  */
 public class ProjectPropertiesDAO {
 

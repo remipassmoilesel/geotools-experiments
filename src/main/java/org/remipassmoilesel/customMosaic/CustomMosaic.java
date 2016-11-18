@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 
 /**
- * Simple trial to create a mosaic from external graphics.
+ * Simple trial to create a mosaic from external graphics. Not usable.
  * <p>
  * Results: Very fluid, but for 55 pictures ~ 22MP total it use 1.5GB heap space
  * <p>
@@ -105,12 +105,6 @@ public class CustomMosaic {
                 x = 0;
                 y += mvY;
             }
-
-//            System.out.println();
-//            System.out.println("-- w x y");
-//            System.out.println(w);
-//            System.out.println(x);
-//            System.out.println(y);
 
             w++;
         }

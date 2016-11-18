@@ -23,7 +23,7 @@ import java.util.PrimitiveIterator;
 import java.util.Random;
 
 /**
- * Misc trials around custom icons creations
+ * Misc trials around custom icons creation
  */
 public class CustomMarksTrial {
 

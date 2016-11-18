@@ -46,19 +46,20 @@ import java.util.Set;
  * JMapFrame.showMap(content);
  * }</pre>
  *
- * @see MapLayerTable
- * @see StatusBar
- *
  * @author Michael Bedward
- * @since 2.6
- *
  * @source $URL$
  * @version $Id$
+ * @see MapLayerTable
+ * @see StatusBar
+ * @since 2.6
  */
 
 /**
- * Created by remipassmoilesel on 26/10/16.
+ * Code from Geotools, unchanged.
+ * <p>
+ * Copied here for misc experiments
  */
+
 public class CustomMapFrame extends JFrame {
     
     /* 
@@ -67,17 +68,29 @@ public class CustomMapFrame extends JFrame {
      * and behaviour at run-time.
      */
 
-    /** Name assigned to toolbar button for feature info queries. */
+    /**
+     * Name assigned to toolbar button for feature info queries.
+     */
     public static final String TOOLBAR_INFO_BUTTON_NAME = "ToolbarInfoButton";
-    /** Name assigned to toolbar button for map panning. */
+    /**
+     * Name assigned to toolbar button for map panning.
+     */
     public static final String TOOLBAR_PAN_BUTTON_NAME = "ToolbarPanButton";
-    /** Name assigned to toolbar button for default pointer. */
+    /**
+     * Name assigned to toolbar button for default pointer.
+     */
     public static final String TOOLBAR_POINTER_BUTTON_NAME = "ToolbarPointerButton";
-    /** Name assigned to toolbar button for map reset. */
+    /**
+     * Name assigned to toolbar button for map reset.
+     */
     public static final String TOOLBAR_RESET_BUTTON_NAME = "ToolbarResetButton";
-    /** Name assigned to toolbar button for map zoom in. */
+    /**
+     * Name assigned to toolbar button for map zoom in.
+     */
     public static final String TOOLBAR_ZOOMIN_BUTTON_NAME = "ToolbarZoomInButton";
-    /** Name assigned to toolbar button for map zoom out. */
+    /**
+     * Name assigned to toolbar button for map zoom out.
+     */
     public static final String TOOLBAR_ZOOMOUT_BUTTON_NAME = "ToolbarZoomOutButton";
 
     /**
@@ -217,7 +230,7 @@ public class CustomMapFrame extends JFrame {
     }
 
     /**
-     * Sets whether to display the default toolbar (default is false). 
+     * Sets whether to display the default toolbar (default is false).
      * Calling this with state == true is equivalent to
      * calling {@link #enableTool} with all {@link org.geotools.swing.JMapFrame.Tool}
      * constants.
@@ -237,17 +250,17 @@ public class CustomMapFrame extends JFrame {
      * This method is an alternative to {@link #enableToolBar(boolean)}.
      * It requests that a tool bar be created with specific tools, identified
      * by {@link org.geotools.swing.JMapFrame.Tool} constants.
-     *
+     * <p>
      * <code><pre>
      * myMapFrame.enableTool(Tool.PAN, Tool.ZOOM);
      * </pre></code>
-     *
+     * <p>
      * Calling this method with no arguments or {@code null} is equivalent
      * to {@code enableToolBar(false)}.
      *
      * @param tool tools to display on the toolbar
      */
-    public void enableTool(org.geotools.swing.JMapFrame.Tool...tool) {
+    public void enableTool(org.geotools.swing.JMapFrame.Tool... tool) {
         if (tool == null || tool.length == 0) {
             enableToolBar(false);
         } else {
@@ -322,7 +335,7 @@ public class CustomMapFrame extends JFrame {
 
                 "[grow]", // column constraints: col grows when frame is resized
 
-                sb.toString() ));
+                sb.toString()));
 
         /*
          * A toolbar with buttons for zooming in, zooming out,

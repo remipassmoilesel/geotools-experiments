@@ -33,15 +33,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Code from Geotools, unchanged.
+ * <p>
+ * Copied here for misc experiments
+ * <p>
  * A lightweight map pane which uses a single renderer and backing image.
  * Used by {@linkplain JMapFrame} for the GeoTools tutorial applications.
  *
  * @author Michael Bedward
  * @author Ian Turton
- * @since 2.6
- *
- * @source $URL$
  * @version $Id$
+ * @source $URL$
+ * @since 2.6
  */
 public class CustomMapPane extends AbstractMapPane {
 
@@ -50,7 +53,7 @@ public class CustomMapPane extends AbstractMapPane {
     private Graphics2D baseImageGraphics;
 
     /**
-     * Creates a new map pane. 
+     * Creates a new map pane.
      */
     public CustomMapPane() {
         this(null);
@@ -60,7 +63,7 @@ public class CustomMapPane extends AbstractMapPane {
      * Creates a new map pane.
      *
      * @param content the map content containing the layers to display
-     *     (may be {@code null})
+     *                (may be {@code null})
      */
     public CustomMapPane(MapContent content) {
         this(content, null, null);
@@ -69,7 +72,7 @@ public class CustomMapPane extends AbstractMapPane {
     /**
      * Creates a new map pane. Any or all arguments may be {@code null}
      *
-     * @param content the map content containing the layers to display
+     * @param content  the map content containing the layers to display
      * @param executor the rendering executor to manage drawing
      * @param renderer the renderer to use for drawing layers
      */

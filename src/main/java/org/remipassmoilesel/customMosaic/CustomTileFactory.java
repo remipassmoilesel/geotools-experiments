@@ -11,6 +11,11 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Custom icon factory that return a tile.
+ * <p>
+ * See CustomMosaic class
+ */
 public class CustomTileFactory implements ExternalGraphicFactory {
 
     private static final Logger LOGGER = Logging.getLogger(CustomTileFactory.class);

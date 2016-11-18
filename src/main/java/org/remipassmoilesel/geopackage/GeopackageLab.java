@@ -48,7 +48,7 @@ import java.util.*;
 import static com.google.common.io.Resources.getResource;
 
 /**
- * Created by remipassmoilesel on 07/11/16.
+ * Misc trials about Geopackage and SQLite databases
  */
 public class GeopackageLab {
 
@@ -60,7 +60,7 @@ public class GeopackageLab {
 
         Path dbpath = Paths.get("data/geopk.db");
 
-        // create a geopackage
+        //create a geopackage
         //cleanExistingGeopackage(dbpath);
         //createGeopkg(dbpath);
 

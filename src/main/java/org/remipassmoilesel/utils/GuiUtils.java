@@ -9,6 +9,7 @@ import org.geotools.map.MapContent;
 import org.geotools.styling.*;
 import org.geotools.swing.JMapFrame;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.style.ContrastMethod;
 import org.remipassmoilesel.swing.CustomMapFrame;
 
@@ -80,10 +81,14 @@ public class GuiUtils {
     }
 
     public static org.geotools.styling.Style getDefaultRGBRasterStyle(AbstractGridCoverage2DReader reader) {
+        return getDefaultRGBRasterStyle(reader, null);
+    }
+
+    public static org.geotools.styling.Style getDefaultRGBRasterStyle(AbstractGridCoverage2DReader reader, GeneralParameterValue[] params) {
 
         GridCoverage2D cov = null;
         try {
-            cov = reader.read(null);
+            cov = reader.read(params);
         } catch (IOException giveUp) {
             throw new RuntimeException(giveUp);
         }

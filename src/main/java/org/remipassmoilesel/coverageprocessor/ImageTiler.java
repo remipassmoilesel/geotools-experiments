@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * Image Tiler from Geotools tutorials
+ * <p>
  * The ImageLab tutorial covered loading and rendering coverages; this tutorial will demonstrate performing basic
  * operations – such as crop and scale – directly on a coverage using the CoverageProcessor and friends, as well as use
  * the Arguments tool to make command line processing a little simpler. We will be creating a simple utility application to
@@ -152,10 +154,10 @@ public class ImageTiler {
     }
 
     /**
-     *  Cropping
-     *  Now that we have the tile envelope width and height we’ll iterate over our tile counts and crop based on
-     *  our target envelope. In this example we will manually create our parameters and use the coverage processor
-     *  to perform the “CoverageCrop” operation. We’ll encounter slightly simpler ways to perform coverage operations in the next step.
+     * Cropping
+     * Now that we have the tile envelope width and height we’ll iterate over our tile counts and crop based on
+     * our target envelope. In this example we will manually create our parameters and use the coverage processor
+     * to perform the “CoverageCrop” operation. We’ll encounter slightly simpler ways to perform coverage operations in the next step.
      */
     private GridCoverage2D cropCoverage(GridCoverage2D gridCoverage, Envelope envelope) {
         CoverageProcessor processor = CoverageProcessor.getInstance();

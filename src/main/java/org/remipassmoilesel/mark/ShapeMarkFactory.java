@@ -11,7 +11,9 @@ import org.opengis.feature.Feature;
 import org.opengis.filter.expression.Expression;
 
 /**
- * Create a shape icon
+ * Custom factory that create a shape icon
+ *
+ * Referenced in resources/meta-inf/services
  */
 public class ShapeMarkFactory implements MarkFactory {
 

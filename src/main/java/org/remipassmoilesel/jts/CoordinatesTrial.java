@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.HashSet;
 
 /**
- * Created by remipassmoilesel on 16/11/16.
+ * Simple sand box to try misc things with geometries
  */
 public class CoordinatesTrial {
 

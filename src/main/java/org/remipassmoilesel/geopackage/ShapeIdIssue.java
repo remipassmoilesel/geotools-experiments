@@ -26,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Simple demonstration of shape id issue with geotools and geopackage.
+ * Simple demonstration of shape id issue with Geotools and geopackage.
  * <p>
- * This probleme disappear with 16
+ * This probleme disappear with Geotools 16
  * <p>
  * Here generated ids are all the same:
  * <p>

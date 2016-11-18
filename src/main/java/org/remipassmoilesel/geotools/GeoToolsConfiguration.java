@@ -5,7 +5,7 @@ import org.geotools.factory.Hints;
 import org.geotools.xml.NullEntityResolver;
 
 /**
- * Example of geotools library config.
+ * Example of Geotools library config.
  */
 public class GeoToolsConfiguration {
 
