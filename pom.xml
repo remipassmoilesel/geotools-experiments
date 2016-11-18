@@ -94,13 +94,6 @@
             <version>${geotools.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.geotools/gt-caching -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-caching</artifactId>
-            <version>8.0-M0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
@@ -111,6 +104,34 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
             <version>${geotools.version}</version>
+        </dependency>
+
+        <!--
+
+        If not found, install it manually:
+        $ git clone https://...geotools...
+        $ cd ... gt-imagecollection ...
+        $ mvn install
+
+        -->
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-imagecollection</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-imagemosaic-jdbc</artifactId>
+            <version>17-SNAPSHOT</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-jdbc -->
+        <dependency>
+            <groupId>com.j256.ormlite</groupId>
+            <artifactId>ormlite-jdbc</artifactId>
+            <version>5.0</version>
         </dependency>
 
     </dependencies>

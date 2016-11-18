@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ImageMosaicJDBCConfig version="1.0">
+
+    <!-- General configuration -->
+    <coverageName name="tiled_coverage_1"/>
+    <!--<coordsys name="EPSG:31287"/>-->
+    <!-- interpolation 1 = nearest neighbour, 2 = bipolar, 3 = bicubic -->
+    <scaleop interpolation="1"/>
+    <axisOrder ignore="false"/>
+    <verify cardinality="false"/>
+
+    <!-- Connection configuration -->
+    <connect>
+        <dstype value="DBCP"/>
+        <username value="" />
+        <password value="" />
+        <jdbcUrl value="jdbc:sqlite:data/image-mosaic-jdbc/geopkg.sqlite"/>
+        <driverClassName value="org.sqlite.JDBC"/>
+        <maxActive value="5"/>
+        <maxIdle value="0"/>
+    </connect>
+
+    <!-- Mapping configuration -->
+    <spatialExtension name="universal"/>
+
+    <masterTable name="jdbc_mosaic_master_table">
+        <coverageNameAttribute name="coverage_name"/>
+        <maxXAttribute name="max_x"/>
+        <maxYAttribute name="max_y"/>
+        <minXAttribute name="min_x"/>
+        <minYAttribute name="min_y"/>
+        <resXAttribute name="res_x"/>
+        <resYAttribute name="res_y"/>
+        <tileTableNameAtribute name="tile_table_name"/>
+        <spatialTableNameAtribute name="spatial_table_name"/>
+    </masterTable>
+
+    <tileTable>
+        <blobAttributeName name="tile_data"/>
+        <keyAttributeName name="tile_id"/>
+    </tileTable>
+
+    <spatialTable>
+        <keyAttributeName name="tile_id"/>
+        <tileMaxXAttribute name="max_x"/>
+        <tileMaxYAttribute name="max_y"/>
+        <tileMinXAttribute name="min_x"/>
+        <tileMinYAttribute name="min_y"/>
+    </spatialTable>
+
+</ImageMosaicJDBCConfig>
