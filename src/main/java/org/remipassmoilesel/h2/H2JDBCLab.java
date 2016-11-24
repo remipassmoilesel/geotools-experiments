@@ -3,25 +3,27 @@ package org.remipassmoilesel.h2;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import org.apache.commons.io.FileUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureStore;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.h2.tools.Server;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.remipassmoilesel.utils.SimpleFeatureUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,28 +33,54 @@ import java.util.Map;
 public class H2JDBCLab {
 
     private static final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+    private static Path dbPath;
+    private static Path rootDirectory;
 
-    public static void main(String[] args) throws IOException {
+    private static final String TYPE_NAME = "GeneratedPoint";
 
-        // create root directory
-        Path root = Paths.get("data", "h2");
-        FileUtils.deleteDirectory(root.toFile());
-        Files.createDirectories(root);
+    public static void main(String[] args) throws IOException, SQLException {
 
-        Path dbPath = root.resolve("./database.h2");
+        rootDirectory = Paths.get("data", "h2");
+        dbPath = rootDirectory.resolve("database.h2");
 
-        // create datastore
-        Map<String, Object> params = new HashMap<>();
-        params.put("dbtype", "h2");
-        params.put("database", "./" + dbPath.toString());
+        writeDatabase();
+        readDatabase();
+    }
 
-        DataStore dataStore = DataStoreFinder.getDataStore(params);
+    public static void readDatabase() throws IOException, SQLException {
+
+        DataStore dataStore = DataStoreFinder.getDataStore(getEmbeddedParams(dbPath));
+
+        // get store
+        FeatureStore fsource = (FeatureStore) dataStore.getFeatureSource(TYPE_NAME);
+
+        // show features
+        FeatureIterator iterator = fsource.getFeatures().features();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+
+        Connection conn = DriverManager.getConnection("jdbc:h2:file:" + dbPath.toAbsolutePath());
+        PreparedStatement stat = conn.prepareStatement("SHUTDOWN");
+        stat.execute();
+
+//        dataStore.dispose();
+    }
+
+    public static void writeDatabase() throws IOException, SQLException {
+
+        // create rootDirectory directory
+
+        FileUtils.deleteDirectory(rootDirectory.toFile());
+        Files.createDirectories(rootDirectory);
+
+        DataStore dataStore = DataStoreFinder.getDataStore(getEmbeddedParams(dbPath));
 
         System.out.println(dataStore);
 
         // create a feture type
         SimpleFeatureTypeBuilder b = new SimpleFeatureTypeBuilder();
-        b.setName("GeneratedPoint");
+        b.setName(TYPE_NAME);
         b.add("name", String.class);
         b.add("number", Integer.class);
         b.setCRS(DefaultEngineeringCRS.CARTESIAN_2D);
@@ -78,13 +106,33 @@ public class H2JDBCLab {
         }
         fsource.addFeatures(featColl);
 
-        // show features
-        FeatureIterator iterator = fsource.getFeatures().features();
-        while (iterator.hasNext()) {
-            System.out.println(iterator.next());
-        }
+        Connection conn = DriverManager.getConnection("jdbc:h2:file:" + dbPath.toAbsolutePath());
+        PreparedStatement stat = conn.prepareStatement("SHUTDOWN");
+        stat.execute();
 
-        System.exit(0);
+        dataStore.dispose();
+
+        System.out.println("Finished !");
+    }
+
+    public static Map<String, Object> getServerParams(Path databaseFile) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("dbtype", "h2");
+        params.put("host", "localhost");
+        params.put("port", 1000);
+        params.put("database", "file:" + databaseFile.toAbsolutePath());
+
+        return params;
+    }
+
+    public static Map<String, Object> getEmbeddedParams(Path databaseFile) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("dbtype", "h2");
+        params.put("database", "file:" + dbPath.toAbsolutePath());
+
+        return params;
     }
 
 }

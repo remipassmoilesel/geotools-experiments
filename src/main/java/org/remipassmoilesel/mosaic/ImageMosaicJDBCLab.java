@@ -90,6 +90,7 @@ public class ImageMosaicJDBCLab {
 
         System.out.println("Used configuration: ");
         System.out.println(config.getDataSourceParams());
+        System.out.println(config);
 
         // First, get a reader
         // the configUrl references the config xml and is object of one of the following types
