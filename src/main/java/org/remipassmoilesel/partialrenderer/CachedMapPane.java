@@ -41,7 +41,7 @@ public class CachedMapPane extends JPanel {
     private MapContent map;
 
     public CachedMapPane(MapContent map) {
-        this.worldBounds = new ReferencedEnvelope();
+        this.worldBounds = null;
         this.partialFactory = new RenderedPartialFactory(map);
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
@@ -105,16 +105,30 @@ public class CachedMapPane extends JPanel {
         // draw maximums bounds aked if necessary
         if (showGrid) {
 
-            Point2D.Double ulcWld = new Point2D.Double(worldBounds.getMinX(), worldBounds.getMaxY());
-            Point2D.Double brcWld = new Point2D.Double(worldBounds.getMaxX(), worldBounds.getMinY());
+            if (worldBounds != null) {
 
-            Point2D ulcPx = worldToScreen.transform(ulcWld, null);
-            Point2D brcPx = worldToScreen.transform(brcWld, null);
+                Point2D.Double ulcWld = new Point2D.Double(worldBounds.getMinX(), worldBounds.getMaxY());
+                Point2D.Double brcWld = new Point2D.Double(worldBounds.getMaxX(), worldBounds.getMinY());
 
-            g2d.setStroke(new BasicStroke(2));
-            g2d.setColor(Color.red);
-            g2d.drawRect((int) ulcPx.getX(), (int) ulcPx.getY(), 3, 3);
-            g2d.drawRect((int) brcPx.getX(), (int) brcPx.getY(), 3, 3);
+                Point2D ulcPx = worldToScreen.transform(ulcWld, null);
+                Point2D brcPx = worldToScreen.transform(brcWld, null);
+
+                g2d.setStroke(new BasicStroke(2));
+                g2d.setColor(Color.red);
+                g2d.drawRect((int) ulcPx.getX(), (int) ulcPx.getY(), 3, 3);
+                g2d.drawRect((int) brcPx.getX(), (int) brcPx.getY(), 3, 3);
+
+            }
+
+            if (worldPosition != null) {
+
+                Point2D wp = worldToScreen.transform(worldPosition, null);
+
+                g2d.setStroke(new BasicStroke(2));
+                g2d.setColor(Color.red);
+                g2d.drawRect((int) wp.getX(), (int) wp.getY(), 3, 3);
+
+            }
 
         }
 

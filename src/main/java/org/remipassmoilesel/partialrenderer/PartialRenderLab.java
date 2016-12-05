@@ -34,6 +34,7 @@ public class PartialRenderLab {
 
     private static boolean setupWms = false;
     private static boolean setupShape = true;
+    private static boolean showStats = false;
 
     public static void main(String[] args) throws IOException, ServiceException {
 
@@ -88,6 +89,7 @@ public class PartialRenderLab {
             JFrame frame = new JFrame();
             frame.setContentPane(pane);
             frame.setSize(new Dimension(800, 600));
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
             frame.setVisible(true);
 
@@ -100,13 +102,17 @@ public class PartialRenderLab {
 
         });
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("Rendered / reused: " + RenderedPartialFactory.getRenderedPartials() + " / " + RenderedPartialFactory.getReusedPartials());
-            }
-        }, 1000, 1000);
+        if(showStats){
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    System.out.println("Rendered / reused: " + RenderedPartialFactory.getRenderedPartials() + " / " + RenderedPartialFactory.getReusedPartials());
+                }
+            }, 1000, 1000);
+
+        }
 
     }
 

@@ -14,16 +14,22 @@ import java.util.ArrayList;
 
 /**
  * Store and create partials
- *
+ * <p>
  * Partials are fixed size squares. Same degree value is used for partial height and width but Geotools
  * renderer is supposed to compensate (no deformation should appear)
- *
+ * <p>
  * Need tests at low latitude
- *
  */
 public class RenderedPartialFactory {
 
+    /**
+     * Count how many partials are rendered
+     */
     private static int renderedPartials = 0;
+
+    /**
+     * Count how many partials are reused
+     */
     private static int reusedPartials = 0;
 
     /**
@@ -44,9 +50,9 @@ public class RenderedPartialFactory {
     /**
      * Zoom level of current rendering
      */
-    private double zoomLevel = 0.4f;
+    private double partialSideDg = 2d;
 
-    private int partialSidePx = 100;
+    private int partialSidePx = 500;
 
     public RenderedPartialFactory(MapContent content) {
 
@@ -66,7 +72,7 @@ public class RenderedPartialFactory {
      */
     public RenderedPartialQueryResult intersect(Point2D ulc, Dimension pixelDimension, CoordinateReferenceSystem crs) {
 
-        double partialSideDg = zoomLevel;
+        double partialSideDg = this.partialSideDg;
 
         // get width and height in decimal dg
         double wdg = partialSideDg * pixelDimension.width / partialSidePx;
@@ -97,7 +103,7 @@ public class RenderedPartialFactory {
         ArrayList<RenderedPartial> rsparts = new ArrayList<>();
 
         // Side value in decimal degree of each partial
-        double partialSideDg = zoomLevel;
+        double partialSideDg = this.partialSideDg;
 
         // count partials
         int tileNumberW = 0;
@@ -105,8 +111,8 @@ public class RenderedPartialFactory {
 
         // first position to go from
         // position is rounded in order to have partials that can be reused in future display
-        double x = getStartFrom(worldBounds.getMinX());
-        double y = getStartFrom(worldBounds.getMinY());
+        double x = getStartPointFrom(worldBounds.getMinX());
+        double y = getStartPointFrom(worldBounds.getMinY());
 
         // iterate area to render from bottom left corner to upper right corner
         while (y < worldBounds.getMaxY()) {
@@ -146,7 +152,7 @@ public class RenderedPartialFactory {
 
                 // reset x except the last loop
                 if (y < worldBounds.getMaxY()) {
-                    x = getStartFrom(worldBounds.getMinX());
+                    x = getStartPointFrom(worldBounds.getMinX());
                 }
             }
 
@@ -177,8 +183,16 @@ public class RenderedPartialFactory {
      * @param coord
      * @return
      */
-    public double getStartFrom(double coord) {
-        return Math.floor(coord * 10) / 10;
+    public double getStartPointFrom(double coord) {
+
+        double mod = coord % partialSideDg;
+        if (mod < 0) {
+            mod += partialSideDg;
+        }
+
+        double rslt = coord - mod;
+
+        return rslt;
     }
 
     /**
@@ -201,8 +215,8 @@ public class RenderedPartialFactory {
         //System.out.println("Rendered: " + bounds);
     }
 
-    public void setZoomLevel(double zoomLevel) {
-        this.zoomLevel = zoomLevel;
+    public void setPartialSideDg(double partialSideDg) {
+        this.partialSideDg = partialSideDg;
     }
 
     public static int getRenderedPartials() {

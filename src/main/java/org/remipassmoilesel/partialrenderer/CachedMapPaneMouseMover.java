@@ -13,7 +13,7 @@ import java.awt.geom.Point2D;
 public class CachedMapPaneMouseMover extends MouseAdapter {
 
     private final CachedMapPane pane;
-    private double move = 0.05;
+    private double move = 0.1;
     private Point lastPosition;
 
     public CachedMapPaneMouseMover(CachedMapPane pane) {
