@@ -174,7 +174,7 @@ public class CustomMapFrame extends JFrame {
 
     /**
      * Default constructor. Creates a {@code JMapFrame} with
-     * no map content or renderer set
+     * no map content or partialrenderer set
      */
     public CustomMapFrame() {
         this(null);

@@ -169,7 +169,7 @@ public class RenderLab extends JPanel implements MouseListener, MouseMotionListe
             mapContent.addLayer(shapeLayer);
         }
 
-        // get a renderer instance
+        // get a partialrenderer instance
         renderer = RendererBuilder.getRenderer();
         renderer.setMapContent(mapContent);
 

@@ -60,7 +60,13 @@ public class MultipleCRSLab {
         int wmsLayerIndex = 0;
         WebMapServer wms = new WebMapServer(new URL(wmsUrl));
         WMSCapabilities capabilities = wms.getCapabilities();
+
         Layer[] namedLayers = WMSUtils.getNamedLayers(capabilities);
+
+        for (Layer namedLayer : namedLayers) {
+            System.out.println(namedLayer);
+        }
+
         WMSLayer wmsLayer = new WMSLayer(wms, namedLayers[wmsLayerIndex]);
 
         System.out.println("wmsLayer.getCoordinateReferenceSystem()");

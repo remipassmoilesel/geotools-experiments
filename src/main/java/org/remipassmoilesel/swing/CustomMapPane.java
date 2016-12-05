@@ -37,7 +37,7 @@ import java.util.Map;
  * <p>
  * Copied here for misc experiments
  * <p>
- * A lightweight map pane which uses a single renderer and backing image.
+ * A lightweight map pane which uses a single partialrenderer and backing image.
  * Used by {@linkplain JMapFrame} for the GeoTools tutorial applications.
  *
  * @author Michael Bedward
@@ -74,7 +74,7 @@ public class CustomMapPane extends AbstractMapPane {
      *
      * @param content  the map content containing the layers to display
      * @param executor the rendering executor to manage drawing
-     * @param renderer the renderer to use for drawing layers
+     * @param renderer the partialrenderer to use for drawing layers
      */
     public CustomMapPane(MapContent content, RenderingExecutor executor, GTRenderer renderer) {
         super(content, executor);
@@ -89,7 +89,7 @@ public class CustomMapPane extends AbstractMapPane {
         super.setMapContent(content);
         if (content != null && renderer != null) {
             // If the new map content had layers to draw, and this pane is visible,
-            // then the map content will already have been set with the renderer
+            // then the map content will already have been set with the partialrenderer
             //
             if (renderer.getMapContent() != content) { // just check reference equality
                 renderer.setMapContent(mapContent);
@@ -98,9 +98,9 @@ public class CustomMapPane extends AbstractMapPane {
     }
 
     /**
-     * Gets the renderer, creating a default one if required.
+     * Gets the partialrenderer, creating a default one if required.
      *
-     * @return the renderer
+     * @return the partialrenderer
      */
     public GTRenderer getRenderer() {
         if (renderer == null) {
@@ -110,9 +110,9 @@ public class CustomMapPane extends AbstractMapPane {
     }
 
     /**
-     * Sets the renderer to be used by this map pane.
+     * Sets the partialrenderer to be used by this map pane.
      *
-     * @param renderer the renderer to use
+     * @param renderer the partialrenderer to use
      */
     public void setRenderer(GTRenderer renderer) {
         doSetRenderer(renderer);

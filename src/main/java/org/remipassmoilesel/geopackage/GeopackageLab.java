@@ -327,7 +327,7 @@ public class GeopackageLab {
         }
         it.close();
 
-        // Get the bounds of features. Do not correspond to the value stored in geopackage with FeatureEntry.setBounds method
+        // Get the bounds of features. Do not correspond to the value stored in geopackage with FeatureEntry.setWorldBounds method
         // Stored bounds have to be manually updated
         System.out.println(source.getBounds());
         System.out.println(source.getFeatures().getBounds());
