@@ -75,8 +75,8 @@ public class CachedMapPane extends JPanel {
             Point2D.Double worldPos = new Point2D.Double(ev.getMinX(), ev.getMaxY());
             Point2D screenPos = worldToScreen.transform(worldPos, null);
 
-            int x = (int) screenPos.getX();
-            int y = (int) screenPos.getY();
+            int x = (int) Math.round(screenPos.getX());
+            int y = (int) Math.round(screenPos.getY());
             int w = part.getRenderedWidth();
             int h = part.getRenderedHeight();
 
