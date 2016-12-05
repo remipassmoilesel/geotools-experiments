@@ -31,14 +31,22 @@ public class CachedMapPane extends JPanel {
     private ReferencedEnvelope worldBounds;
 
     /**
+     * Or ULC point to render from
+     */
+    private Point2D ulcPosition;
+
+    /**
      * Map to render
      */
     private MapContent map;
+
 
     public CachedMapPane(MapContent map) {
         this.worldBounds = new ReferencedEnvelope();
         this.partialFactory = new RenderedPartialFactory(map);
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+
+        this.map = map;
     }
 
     @Override
@@ -59,12 +67,18 @@ public class CachedMapPane extends JPanel {
         }
 
         // search which partials are necessary to display
-        RenderedPartialQueryResult rs = partialFactory.intersect(worldBounds);
+        RenderedPartialQueryResult rs;
+
+        if (ulcPosition != null) {
+            rs = partialFactory.intersect(ulcPosition, screenBounds.getSize(), map.getCoordinateReferenceSystem());
+        } else {
+            rs = partialFactory.intersect(worldBounds);
+        }
 
         // get affine transform to set position of partials
         AffineTransform worldToScreen = rs.getWorldToScreenTransform();
 
-        if(showGrid){
+        if (showGrid) {
             g2d.setColor(Color.darkGray);
         }
 
@@ -109,6 +123,10 @@ public class CachedMapPane extends JPanel {
 
     public void setWorldBounds(ReferencedEnvelope bounds) {
         this.worldBounds = bounds;
+    }
+
+    public void setWorldPosition(Point2D worldPoint) {
+        this.ulcPosition = worldPoint;
     }
 
 }

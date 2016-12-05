@@ -4,9 +4,11 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.lite.StreamingRenderer;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.remipassmoilesel.draw.RendererBuilder;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -33,20 +35,50 @@ public class RenderedPartialFactory {
     /**
      * Zoom level of current rendering
      */
-    private double zoomLevel;
+    private double zoomLevel = 0.4f;
 
-    private Dimension tileDim = new Dimension(100, 100);
+    private int partialSidePx = 100;
 
     public RenderedPartialFactory(MapContent content) {
         partials = new ArrayList<>();
         renderer = RendererBuilder.getRenderer();
         mapContent = content;
 
-        zoomLevel = 0.4f;
-
         renderer.setMapContent(mapContent);
     }
 
+    /**
+     * Get partials from Upper Left Corner (world) position with specified dimension
+     *
+     * @param ulc
+     * @param pixelDimension
+     * @return
+     */
+    public RenderedPartialQueryResult intersect(Point2D ulc, Dimension pixelDimension, CoordinateReferenceSystem crs) {
+
+        double partialSideDg = zoomLevel;
+
+        // get width and height in decimal dg
+        double wdg = partialSideDg * pixelDimension.width / partialSidePx;
+        double hdg = partialSideDg * pixelDimension.height / partialSidePx;
+
+        // create a new enveloppe
+        double x1 = ulc.getX();
+        double y1 = ulc.getY() - hdg; // to BLC
+        double x2 = ulc.getX() + wdg;
+        double y2 = ulc.getY();
+
+        // create a new envelope
+        return intersect(new ReferencedEnvelope(x1, x2, y1, y2, crs));
+
+    }
+
+    /**
+     * Get partials around a world envelope
+     *
+     * @param worldBounds
+     * @return
+     */
     public RenderedPartialQueryResult intersect(ReferencedEnvelope worldBounds) {
 
         //System.out.println();
@@ -55,7 +87,7 @@ public class RenderedPartialFactory {
         ArrayList<RenderedPartial> rsparts = new ArrayList<>();
 
         // Side value in decimal degree of each partial
-        double incr = zoomLevel;
+        double partialSideDg = zoomLevel;
 
         // count partials
         int tileNumberW = 0;
@@ -75,7 +107,7 @@ public class RenderedPartialFactory {
             }
 
             // area of current partial
-            ReferencedEnvelope area = new ReferencedEnvelope(x, x + incr, y, y + incr, DefaultGeographicCRS.WGS84);
+            ReferencedEnvelope area = new ReferencedEnvelope(x, x + partialSideDg, y, y + partialSideDg, DefaultGeographicCRS.WGS84);
 
             // find existing partial
             RenderedPartial searched = new RenderedPartial(null, area);
@@ -91,11 +123,11 @@ public class RenderedPartialFactory {
                 rsparts.add(searched);
             }
 
-            x += incr;
+            x += partialSideDg;
 
             // change line when finished
             if (x > worldBounds.getMaxX()) {
-                y += incr;
+                y += partialSideDg;
                 tileNumberH++;
 
                 // reset x except the last loop
@@ -117,8 +149,8 @@ public class RenderedPartialFactory {
         // compute real screen bounds of asked world area
         // given that we used fixed size partials, area can be larger than asked one
         Rectangle screenBounds = new Rectangle(0, 0,
-                (int) Math.round(w * tileDim.width / incr),
-                (int) Math.round(h * tileDim.height / incr));
+                (int) Math.round(w * partialSidePx / partialSideDg),
+                (int) Math.round(h * partialSidePx / partialSideDg));
 
         return new RenderedPartialQueryResult(rsparts, worldBounds, screenBounds, tileNumberW, tileNumberH);
     }
@@ -145,9 +177,9 @@ public class RenderedPartialFactory {
         ReferencedEnvelope bounds = part.getEnvelope();
 
         // create an image, and render map
-        BufferedImage img = new BufferedImage(tileDim.width, tileDim.height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(partialSidePx, partialSidePx, BufferedImage.TYPE_INT_ARGB);
 
-        renderer.paint((Graphics2D) img.getGraphics(), new Rectangle(tileDim), bounds);
+        renderer.paint((Graphics2D) img.getGraphics(), new Rectangle(partialSidePx, partialSidePx), bounds);
 
         // keep image
         part.setImage(img);

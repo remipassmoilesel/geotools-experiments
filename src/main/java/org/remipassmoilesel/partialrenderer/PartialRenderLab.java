@@ -17,6 +17,7 @@ import org.geotools.styling.SLD;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -25,7 +26,7 @@ import java.nio.file.Paths;
 /**
  * Created by remipassmoilesel on 04/12/16.
  */
-public class TileRenderLab {
+public class PartialRenderLab {
 
     private static boolean setupWms = false;
     private static boolean setupShape = true;
@@ -66,17 +67,19 @@ public class TileRenderLab {
             mapContent.addLayer(shapeLayer);
         }
 
-        ReferencedEnvelope start = new ReferencedEnvelope(-2.38d, 0.44d, 48.45d, 49.98d, DefaultGeographicCRS.WGS84);
+        //ReferencedEnvelope start = new ReferencedEnvelope(-2.38d, 0.44d, 48.45d, 49.98d, DefaultGeographicCRS.WGS84);
         //ReferencedEnvelope start = new ReferencedEnvelope(2.38d, 5.44d, 48.45d, 49.98d, DefaultGeographicCRS.WGS84);
+        Point2D.Double start = new Point2D.Double(-2.38d, 48.45d);
 
-//        RenderedPartialFactory partMan = new RenderedPartialFactory(mapContent);
-//        partMan.intersect(start);
+        //RenderedPartialFactory partMan = new RenderedPartialFactory(mapContent);
+        //partMan.intersect(start);
 
         SwingUtilities.invokeLater(() -> {
 
             CachedMapPane pane = new CachedMapPane(mapContent);
 
-            pane.setWorldBounds(start);
+            //pane.setWorldBounds(start);
+            pane.setWorldPosition(start);
 
             JFrame frame = new JFrame();
             frame.setContentPane(pane);
