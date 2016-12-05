@@ -33,13 +33,12 @@ public class CachedMapPane extends JPanel {
     /**
      * Or ULC point to render from
      */
-    private Point2D ulcPosition;
+    private Point2D worldPosition;
 
     /**
      * Map to render
      */
     private MapContent map;
-
 
     public CachedMapPane(MapContent map) {
         this.worldBounds = new ReferencedEnvelope();
@@ -69,8 +68,8 @@ public class CachedMapPane extends JPanel {
         // search which partials are necessary to display
         RenderedPartialQueryResult rs;
 
-        if (ulcPosition != null) {
-            rs = partialFactory.intersect(ulcPosition, screenBounds.getSize(), map.getCoordinateReferenceSystem());
+        if (worldPosition != null) {
+            rs = partialFactory.intersect(worldPosition, screenBounds.getSize(), map.getCoordinateReferenceSystem());
         } else {
             rs = partialFactory.intersect(worldBounds);
         }
@@ -126,7 +125,10 @@ public class CachedMapPane extends JPanel {
     }
 
     public void setWorldPosition(Point2D worldPoint) {
-        this.ulcPosition = worldPoint;
+        this.worldPosition = worldPoint;
     }
 
+    public Point2D getWorldPosition() {
+        return new Point2D.Double(worldPosition.getX(), worldPosition.getY());
+    }
 }

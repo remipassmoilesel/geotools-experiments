@@ -14,8 +14,17 @@ import java.util.ArrayList;
 
 /**
  * Store and create partials
+ *
+ * Partials are fixed size squares. Same degree value is used for partial height and width but Geotools
+ * renderer is supposed to compensate (no deformation should appear)
+ *
+ * Need tests at low latitude
+ *
  */
 public class RenderedPartialFactory {
+
+    private static int renderedPartials = 0;
+    private static int reusedPartials = 0;
 
     /**
      * List of available in memory partials.
@@ -40,6 +49,7 @@ public class RenderedPartialFactory {
     private int partialSidePx = 100;
 
     public RenderedPartialFactory(MapContent content) {
+
         partials = new ArrayList<>();
         renderer = RendererBuilder.getRenderer();
         mapContent = content;
@@ -114,6 +124,8 @@ public class RenderedPartialFactory {
             int index = partials.indexOf(searched);
             if (index != -1) {
                 rsparts.add(partials.get(index));
+
+                reusedPartials++;
             }
 
             // or create a new one
@@ -121,6 +133,8 @@ public class RenderedPartialFactory {
                 renderPartial(searched);
                 partials.add(searched);
                 rsparts.add(searched);
+
+                renderedPartials++;
             }
 
             x += partialSideDg;
@@ -184,10 +198,18 @@ public class RenderedPartialFactory {
         // keep image
         part.setImage(img);
 
-        System.out.println("Rendered: " + bounds);
+        //System.out.println("Rendered: " + bounds);
     }
 
     public void setZoomLevel(double zoomLevel) {
         this.zoomLevel = zoomLevel;
+    }
+
+    public static int getRenderedPartials() {
+        return renderedPartials;
+    }
+
+    public static int getReusedPartials() {
+        return reusedPartials;
     }
 }

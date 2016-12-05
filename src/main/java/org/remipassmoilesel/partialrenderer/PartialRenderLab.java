@@ -17,11 +17,15 @@ import org.geotools.styling.SLD;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.Timer;
 
 /**
  * Created by remipassmoilesel on 04/12/16.
@@ -89,7 +93,20 @@ public class PartialRenderLab {
 
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+            // listen map move
+            CachedMapPaneMouseMover mmover = new CachedMapPaneMouseMover(pane);
+            pane.addMouseMotionListener(mmover);
+            pane.addMouseListener(mmover);
+
         });
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Rendered / reused: " + RenderedPartialFactory.getRenderedPartials() + " / " + RenderedPartialFactory.getReusedPartials());
+            }
+        }, 1000, 1000);
 
     }
 
