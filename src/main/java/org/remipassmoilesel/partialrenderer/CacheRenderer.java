@@ -9,11 +9,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 /**
- * Display a map by using partial cache system
- * <p>
- * Cache is managed by a RenderedPartialFactory. This partial factory produce portions of map and store it.
+ * Created by remipassmoilesel on 06/12/16.
  */
-public class CachedMapPane extends JPanel {
+public class CacheRenderer {
 
     /**
      * If set to true, the partial grid is displayed
@@ -40,36 +38,23 @@ public class CachedMapPane extends JPanel {
      */
     private MapContent map;
 
-    public CachedMapPane(MapContent map) {
+    public CacheRenderer(MapContent map) {
         this.worldBounds = null;
         this.partialFactory = new RenderedPartialFactory(map);
-        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-
         this.map = map;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
+    protected void render(Graphics g, Dimension pixelDimensions) {
+        render((Graphics2D) g, pixelDimensions);
+    }
 
-        super.paintComponent(g);
-
-        Graphics2D g2d = (Graphics2D) g;
-
-        //System.out.println();
-        //System.out.println("protected void paintComponent(Graphics g) {");
-
-        Rectangle screenBounds = g2d.getClipBounds();
-
-        if (screenBounds.width < 1 || screenBounds.height < 1) {
-            System.out.println("Screen bounds too small");
-            return;
-        }
+    protected void render(Graphics2D g2d, Dimension pixelDimensions) {
 
         // search which partials are necessary to display
         RenderedPartialQueryResult rs;
 
         if (worldPosition != null) {
-            rs = partialFactory.intersect(worldPosition, screenBounds.getSize(), map.getCoordinateReferenceSystem());
+            rs = partialFactory.intersect(worldPosition, pixelDimensions, map.getCoordinateReferenceSystem());
         } else {
             rs = partialFactory.intersect(worldBounds);
         }
@@ -134,15 +119,39 @@ public class CachedMapPane extends JPanel {
 
     }
 
+    /**
+     * Set world bounds to render
+     *
+     * @param bounds
+     */
     public void setWorldBounds(ReferencedEnvelope bounds) {
         this.worldBounds = bounds;
     }
 
+    /**
+     * Set world position from which render
+     *
+     * @param worldPoint
+     */
     public void setWorldPosition(Point2D worldPoint) {
         this.worldPosition = worldPoint;
     }
 
+    /**
+     * Get world position
+     *
+     * @return
+     */
     public Point2D getWorldPosition() {
         return new Point2D.Double(worldPosition.getX(), worldPosition.getY());
+    }
+
+    /**
+     * Set to true to show partial grid and marks
+     *
+     * @param showGrid
+     */
+    public void setShowGrid(boolean showGrid) {
+        this.showGrid = showGrid;
     }
 }

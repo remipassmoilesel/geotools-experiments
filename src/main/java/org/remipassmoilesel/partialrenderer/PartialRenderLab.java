@@ -7,18 +7,14 @@ import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WMSUtils;
 import org.geotools.data.wms.WebMapServer;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.map.WMSLayer;
 import org.geotools.ows.ServiceException;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLD;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.net.URL;
@@ -34,7 +30,7 @@ public class PartialRenderLab {
 
     private static boolean setupWms = false;
     private static boolean setupShape = true;
-    private static boolean showStats = false;
+    private static boolean showStats = true;
 
     public static void main(String[] args) throws IOException, ServiceException {
 
@@ -81,7 +77,7 @@ public class PartialRenderLab {
 
         SwingUtilities.invokeLater(() -> {
 
-            CachedMapPane pane = new CachedMapPane(mapContent);
+            CacheMapPane pane = new CacheMapPane(mapContent);
 
             //pane.setWorldBounds(start);
             pane.setWorldPosition(start);
@@ -96,7 +92,7 @@ public class PartialRenderLab {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             // listen map move
-            CachedMapPaneMouseMover mmover = new CachedMapPaneMouseMover(pane);
+            CacheMapPaneMouseMover mmover = new CacheMapPaneMouseMover(pane);
             pane.addMouseMotionListener(mmover);
             pane.addMouseListener(mmover);
 

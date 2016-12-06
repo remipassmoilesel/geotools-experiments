@@ -1,7 +1,5 @@
 package org.remipassmoilesel.partialrenderer;
 
-import org.geotools.map.event.MapAdapter;
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -10,13 +8,13 @@ import java.awt.geom.Point2D;
 /**
  * Created by remipassmoilesel on 05/12/16.
  */
-public class CachedMapPaneMouseMover extends MouseAdapter {
+public class CacheMapPaneMouseMover extends MouseAdapter {
 
-    private final CachedMapPane pane;
+    private final CacheMapPane pane;
     private double move = 0.1;
     private Point lastPosition;
 
-    public CachedMapPaneMouseMover(CachedMapPane pane) {
+    public CacheMapPaneMouseMover(CacheMapPane pane) {
         this.pane = pane;
     }
 
