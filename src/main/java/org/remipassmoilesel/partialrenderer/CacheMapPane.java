@@ -2,11 +2,14 @@ package org.remipassmoilesel.partialrenderer;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
+import org.remipassmoilesel.utils.ThreadManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Display a map by using partial cache system
@@ -15,11 +18,25 @@ import java.awt.geom.Point2D;
  */
 public class CacheMapPane extends JPanel {
 
-    private final CacheRenderer renderer;
     /**
-     * World bounds to render
+     * Cache render that render an image to paint in JPanel
      */
-    private ReferencedEnvelope worldBounds;
+    private final CacheRenderer renderer;
+
+    /**
+     * Lock to prevent too much thread rendering
+     */
+    private final ReentrantLock lock;
+
+    /**
+     * Last time of rendering in ms
+     */
+    private long lastRender = -1;
+
+    /**
+     * Minimum interval between rendering in ms
+     */
+    private long renderMinIntervalMs = 50;
 
     /**
      * Or ULC point to render from
@@ -30,12 +47,15 @@ public class CacheMapPane extends JPanel {
      * Map to render
      */
     private MapContent map;
+    private BufferedImage contentImage;
 
     public CacheMapPane(MapContent map) {
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
         this.map = map;
         this.renderer = new CacheRenderer(map);
+
+        lock = new ReentrantLock();
     }
 
     @Override
@@ -45,31 +65,63 @@ public class CacheMapPane extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        //System.out.println();
-        //System.out.println("protected void paintComponent(Graphics g) {");
-
-        Rectangle screenBounds = g2d.getClipBounds();
-
-        if (screenBounds.width < 1 || screenBounds.height < 1) {
-            System.out.println("Screen bounds too small");
-            return;
-        }
-
-        // search which partials are necessary to display
-        RenderedPartialQueryResult rs;
-
-        if (worldPosition != null) {
-            renderer.setWorldPosition(worldPosition);
-        } else {
-            renderer.setWorldBounds(worldBounds);
-        }
-
-        renderer.render(g, g.getClipBounds().getSize());
+        g2d.drawImage(contentImage, 0, 0, null);
 
     }
 
-    public void setWorldBounds(ReferencedEnvelope bounds) {
-        this.worldBounds = bounds;
+    public void refreshMap() {
+
+        if (checkRenderInterval() == false) {
+            return;
+        }
+
+        ThreadManager.runLater(() -> {
+
+            if(lock.tryLock() == false){
+                //System.err.println("Already rendering !");
+                return;
+            }
+
+            try{
+                //System.out.println("Render task launched");
+
+                Dimension dim = CacheMapPane.this.getSize();
+
+                if (dim.width < 1 || dim.height < 1) {
+                    System.out.println("Screen bounds too small");
+                    return;
+                }
+
+                BufferedImage newContent = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB);
+                Graphics g = newContent.getGraphics();
+
+                renderer.setWorldPosition(worldPosition);
+                renderer.render(g, dim);
+
+                contentImage = newContent;
+
+                repaint();
+
+                //System.out.println("Render task complete");
+            } finally {
+                lock.unlock();
+            }
+
+        });
+
+    }
+
+    private boolean checkRenderInterval() {
+        boolean render = System.currentTimeMillis() - lastRender > renderMinIntervalMs;
+        if (render) {
+            lastRender = System.currentTimeMillis();
+        }
+
+        return render;
+    }
+
+    public void initializeMap() {
+        refreshMap();
     }
 
     public void setWorldPosition(Point2D worldPoint) {

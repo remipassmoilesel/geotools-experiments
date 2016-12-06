@@ -119,6 +119,8 @@ public class PartialRenderLab {
             pane.addMouseListener(mcontrol);
             pane.addMouseWheelListener(mcontrol);
 
+            pane.initializeMap();
+
         });
 
         if (showStats) {

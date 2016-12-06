@@ -12,6 +12,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Store and create partials
@@ -20,6 +22,8 @@ import java.util.ArrayList;
  * renderer is supposed to compensate (no deformation should appear)
  * <p>
  * Need tests at low latitude
+ *
+ * <p>//TOD: multithread rendering</p>
  */
 public class RenderedPartialFactory {
 
@@ -37,6 +41,10 @@ public class RenderedPartialFactory {
      * Associated map content
      */
     private final MapContent mapContent;
+
+    /**
+     * Where are stored partials
+     */
     private final RenderedPartialStore store;
 
     /**

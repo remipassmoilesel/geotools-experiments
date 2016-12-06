@@ -43,7 +43,7 @@ public class CacheMapPaneMouseController extends MouseAdapter {
         Point2D p = pane.getWorldPosition();
         pane.setWorldPosition(new Point2D.Double(p.getX() + mx, p.getY() - my));
 
-        pane.repaint();
+        pane.refreshMap();
 
         lastPosition = m;
 
@@ -66,6 +66,6 @@ public class CacheMapPaneMouseController extends MouseAdapter {
         }
         
         pane.setPartialSideDg(pane.getPartialSideDg() + zoomUnit);
-        pane.repaint();
+        pane.refreshMap();
     }
 }

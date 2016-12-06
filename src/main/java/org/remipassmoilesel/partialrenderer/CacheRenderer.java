@@ -23,11 +23,6 @@ public class CacheRenderer {
     private final RenderedPartialFactory partialFactory;
 
     /**
-     * World bounds to render
-     */
-    private ReferencedEnvelope worldBounds;
-
-    /**
      * Or ULC point to render from
      */
     private Point2D worldPosition;
@@ -38,7 +33,6 @@ public class CacheRenderer {
     private MapContent map;
 
     public CacheRenderer(MapContent map) {
-        this.worldBounds = null;
         this.partialFactory = new RenderedPartialFactory(map);
         this.map = map;
     }
@@ -50,22 +44,16 @@ public class CacheRenderer {
     protected void render(Graphics2D g2d, Dimension pixelDimensions) {
 
         // search which partials are necessary to display
-        RenderedPartialQueryResult rs;
-
-        if (worldPosition != null) {
-            rs = partialFactory.intersect(worldPosition, pixelDimensions, map.getCoordinateReferenceSystem());
-        } else {
-            rs = partialFactory.intersect(worldBounds);
-        }
+        RenderedPartialQueryResult result = partialFactory.intersect(worldPosition, pixelDimensions, map.getCoordinateReferenceSystem());
 
         // get affine transform to set position of partials
-        AffineTransform worldToScreen = rs.getWorldToScreenTransform();
+        AffineTransform worldToScreen = result.getWorldToScreenTransform();
 
         if (showGrid) {
             g2d.setColor(Color.darkGray);
         }
 
-        for (RenderedPartialImage part : rs.getPartials()) {
+        for (RenderedPartialImage part : result.getPartials()) {
 
             // compute position of tile on map
             ReferencedEnvelope ev = part.getEnvelope();
@@ -89,21 +77,6 @@ public class CacheRenderer {
         // draw maximums bounds aked if necessary
         if (showGrid) {
 
-            if (worldBounds != null) {
-
-                Point2D.Double ulcWld = new Point2D.Double(worldBounds.getMinX(), worldBounds.getMaxY());
-                Point2D.Double brcWld = new Point2D.Double(worldBounds.getMaxX(), worldBounds.getMinY());
-
-                Point2D ulcPx = worldToScreen.transform(ulcWld, null);
-                Point2D brcPx = worldToScreen.transform(brcWld, null);
-
-                g2d.setStroke(new BasicStroke(2));
-                g2d.setColor(Color.red);
-                g2d.drawRect((int) ulcPx.getX(), (int) ulcPx.getY(), 3, 3);
-                g2d.drawRect((int) brcPx.getX(), (int) brcPx.getY(), 3, 3);
-
-            }
-
             if (worldPosition != null) {
 
                 Point2D wp = worldToScreen.transform(worldPosition, null);
@@ -116,15 +89,7 @@ public class CacheRenderer {
 
         }
 
-    }
 
-    /**
-     * Set world bounds to render
-     *
-     * @param bounds
-     */
-    public void setWorldBounds(ReferencedEnvelope bounds) {
-        this.worldBounds = bounds;
     }
 
     /**
