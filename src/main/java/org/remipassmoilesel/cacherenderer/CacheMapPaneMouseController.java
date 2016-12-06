@@ -1,4 +1,4 @@
-package org.remipassmoilesel.partialrenderer;
+package org.remipassmoilesel.cacherenderer;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

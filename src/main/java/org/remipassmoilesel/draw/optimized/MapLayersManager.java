@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Manager for map layers. Allow to partialrenderer one layer at a time, and to store rendered images.
+ * Manager for map layers. Allow to cacherenderer one layer at a time, and to store rendered images.
  */
 public class MapLayersManager {
 

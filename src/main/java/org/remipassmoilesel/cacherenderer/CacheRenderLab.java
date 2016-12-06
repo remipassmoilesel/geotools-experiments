@@ -1,4 +1,4 @@
-package org.remipassmoilesel.partialrenderer;
+package org.remipassmoilesel.cacherenderer;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -21,7 +21,6 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.map.WMSLayer;
 import org.geotools.ows.ServiceException;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLD;
 import org.opengis.referencing.FactoryException;
@@ -41,7 +40,7 @@ import java.util.Timer;
 /**
  * Created by remipassmoilesel on 04/12/16.
  */
-public class PartialRenderLab {
+public class CacheRenderLab {
 
     public static final Path CACHE_DATABASE_DIR = Paths.get("data/renderedPartialsStore/");
     private static boolean setupWms = false;
@@ -145,7 +144,7 @@ public class PartialRenderLab {
     public static void sqlLab() throws SQLException {
         String PRECISION = "0.000001";
 
-        JdbcPooledConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + PartialRenderLab.CACHE_DATABASE_DIR.resolve("partials.db") + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
+        JdbcPooledConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + CacheRenderLab.CACHE_DATABASE_DIR.resolve("partials.db") + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
         connectionSource.setMaxConnectionAgeMillis(5 * 60 * 1000);
         connectionSource.setTestBeforeGet(true);
         connectionSource.initialize();

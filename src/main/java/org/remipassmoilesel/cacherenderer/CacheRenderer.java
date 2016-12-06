@@ -1,4 +1,4 @@
-package org.remipassmoilesel.partialrenderer;
+package org.remipassmoilesel.cacherenderer;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;

@@ -1,9 +1,8 @@
-package org.remipassmoilesel.partialrenderer;
+package org.remipassmoilesel.cacherenderer;
 
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
 import com.j256.ormlite.field.types.ByteArrayType;
-import com.j256.ormlite.field.types.DateTimeType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

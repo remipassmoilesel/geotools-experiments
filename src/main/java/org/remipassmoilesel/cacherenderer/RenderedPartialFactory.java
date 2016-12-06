@@ -1,4 +1,4 @@
-package org.remipassmoilesel.partialrenderer;
+package org.remipassmoilesel.cacherenderer;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
@@ -12,8 +12,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Store and create partials
@@ -62,7 +60,7 @@ public class RenderedPartialFactory {
         renderer.setMapContent(mapContent);
 
         try {
-            store = new RenderedPartialStore(PartialRenderLab.CACHE_DATABASE_DIR.resolve("partials.db"));
+            store = new RenderedPartialStore(CacheRenderLab.CACHE_DATABASE_DIR.resolve("partials.db"));
         } catch (SQLException e) {
             throw new RuntimeException("Unable to initialize database: " + e.getMessage(), e);
         }
@@ -146,6 +144,7 @@ public class RenderedPartialFactory {
             // partial not found, create a new one
             else {
                 RenderedPartialImage newPart = new RenderedPartialImage(null, area);
+
                 renderPartial(newPart);
                 try {
                     store.addPartial(newPart);
@@ -153,6 +152,7 @@ public class RenderedPartialFactory {
                     e.printStackTrace();
                     continue;
                 }
+
                 newPart.setupImageSoftReference();
                 rsparts.add(newPart);
                 renderedPartials++;
