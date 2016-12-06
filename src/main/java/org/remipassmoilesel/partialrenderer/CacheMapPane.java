@@ -6,6 +6,8 @@ import org.remipassmoilesel.utils.ThreadManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -56,6 +58,8 @@ public class CacheMapPane extends JPanel {
         this.renderer = new CacheRenderer(map);
 
         lock = new ReentrantLock();
+
+        this.addComponentListener(new RefreshMapComponentListener());
     }
 
     @Override
@@ -142,5 +146,28 @@ public class CacheMapPane extends JPanel {
 
     public void setPartialSideDg(double partialSideDg) {
         renderer.setPartialSideDg(partialSideDg);
+    }
+
+    public class RefreshMapComponentListener implements ComponentListener{
+
+        @Override
+        public void componentResized(ComponentEvent e) {
+            refreshMap();
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent e) {
+            refreshMap();
+        }
+
+        @Override
+        public void componentShown(ComponentEvent e) {
+            refreshMap();
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent e) {
+
+        }
     }
 }
