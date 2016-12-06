@@ -10,7 +10,6 @@ import org.remipassmoilesel.draw.RendererBuilder;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -98,7 +97,7 @@ public class RenderedPartialFactory {
         //System.out.println();
         //System.out.println("public RenderedPartialQueryResult intersect(ReferencedEnvelope worldBounds) {");
 
-        ArrayList<RenderedPartial> rsparts = new ArrayList<>();
+        ArrayList<RenderedPartialImage> rsparts = new ArrayList<>();
 
         // Side value in decimal degree of each partial
         double partialSideDg = this.partialSideDg;
@@ -121,10 +120,10 @@ public class RenderedPartialFactory {
             }
 
             // area of current partial
-            ReferencedEnvelope area = new ReferencedEnvelope(x, x + partialSideDg, y, y + partialSideDg, DefaultGeographicCRS.WGS84);
+            ReferencedEnvelope area = new ReferencedEnvelope(x, round(x + partialSideDg), y, round(y + partialSideDg), DefaultGeographicCRS.WGS84);
 
             // try to find partial in store
-            RenderedPartial part = null;
+            RenderedPartialImage part = null;
             try {
                 part = store.getPartial(area);
             } catch (SQLException e) {
@@ -138,7 +137,7 @@ public class RenderedPartialFactory {
 
             // partial not found, create a new one
             else {
-                RenderedPartial newPart = new RenderedPartial(null, area);
+                RenderedPartialImage newPart = new RenderedPartialImage(null, area);
                 renderPartial(newPart);
                 try {
                     store.addPartial(newPart);
@@ -146,6 +145,7 @@ public class RenderedPartialFactory {
                     e.printStackTrace();
                     continue;
                 }
+                newPart.setupImageSoftReference();
                 rsparts.add(newPart);
                 renderedPartials++;
             }
@@ -199,7 +199,17 @@ public class RenderedPartialFactory {
 
         double rslt = coord - mod;
 
-        return rslt;
+        return round(rslt);
+    }
+
+    /**
+     * Add a value and round it to 6 decimal, in order to normalize coordinates and have reusable partials
+     *
+     * @param coord
+     * @return
+     */
+    public double round(double coord) {
+        return Math.round(coord * 1000000.0) / 1000000.0;
     }
 
     /**
@@ -207,7 +217,7 @@ public class RenderedPartialFactory {
      *
      * @param part
      */
-    public void renderPartial(RenderedPartial part) {
+    public void renderPartial(RenderedPartialImage part) {
 
         ReferencedEnvelope bounds = part.getEnvelope();
 

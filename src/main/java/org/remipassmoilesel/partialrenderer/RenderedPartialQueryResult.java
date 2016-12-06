@@ -15,12 +15,12 @@ public class RenderedPartialQueryResult {
 
     private int tileNumberWidth;
     private int tileNumberHeight;
-    private ArrayList<RenderedPartial> partials;
+    private ArrayList<RenderedPartialImage> partials;
 
     private AffineTransform screenToWorldTransform;
     private AffineTransform worldToScreenTransform;
 
-    public RenderedPartialQueryResult(ArrayList<RenderedPartial> partials, ReferencedEnvelope worldBounds, Rectangle screenBounds, int tileNumberWidth, int tileNumberHeight) {
+    public RenderedPartialQueryResult(ArrayList<RenderedPartialImage> partials, ReferencedEnvelope worldBounds, Rectangle screenBounds, int tileNumberWidth, int tileNumberHeight) {
 
         this.tileNumberWidth = tileNumberWidth;
         this.tileNumberHeight = tileNumberHeight;
@@ -51,7 +51,7 @@ public class RenderedPartialQueryResult {
         return tileNumberHeight;
     }
 
-    public ArrayList<RenderedPartial> getPartials() {
+    public ArrayList<RenderedPartialImage> getPartials() {
         return partials;
     }
 }

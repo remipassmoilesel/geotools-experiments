@@ -1,6 +1,5 @@
 package org.remipassmoilesel.partialrenderer;
 
-import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -23,7 +22,7 @@ import java.util.Objects;
  * to avoid OutOfMemoryException
  */
 @DatabaseTable(tableName = "PARTIALS")
-public class RenderedPartial {
+public class RenderedPartialImage {
 
     public static final String PARTIAL_ID_FIELD_NAME = "ID";
     public static final String PARTIAL_IMAGE_FIELD_NAME = "IMAGE";
@@ -83,14 +82,14 @@ public class RenderedPartial {
      */
     private int renderedHeight;
 
-    public RenderedPartial() {
+    public RenderedPartialImage() {
     }
 
-    public RenderedPartial(BufferedImage img, ReferencedEnvelope ev) {
+    public RenderedPartialImage(BufferedImage img, ReferencedEnvelope ev) {
         this(img, ev.getMinX(), ev.getMaxX(), ev.getMinY(), ev.getMaxY(), ev.getCoordinateReferenceSystem());
     }
 
-    public RenderedPartial(BufferedImage img, double x1, double x2, double y1, double y2, CoordinateReferenceSystem crs) {
+    public RenderedPartialImage(BufferedImage img, double x1, double x2, double y1, double y2, CoordinateReferenceSystem crs) {
         this.image = img;
         this.x1 = x1;
         this.x2 = x2;
@@ -112,7 +111,12 @@ public class RenderedPartial {
      * @return
      */
     public BufferedImage getImage() {
-        return image;
+
+        if (imageSoftRef == null) {
+            return image;
+        }
+
+        return imageSoftRef.get();
     }
 
     public ReferencedEnvelope getEnvelope() {
@@ -120,7 +124,7 @@ public class RenderedPartial {
     }
 
     /**
-     * Only enveloppe is used
+     * Only envelope is used to test equality
      *
      * @param o
      * @return
@@ -129,7 +133,7 @@ public class RenderedPartial {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RenderedPartial that = (RenderedPartial) o;
+        RenderedPartialImage that = (RenderedPartialImage) o;
         return Double.compare(that.x1, x1) == 0 &&
                 Double.compare(that.x2, x2) == 0 &&
                 Double.compare(that.y1, y1) == 0 &&
@@ -139,7 +143,7 @@ public class RenderedPartial {
 
     @Override
     public String toString() {
-        return "RenderedPartial{" +
+        return "RenderedPartialImage{" +
                 "image=" + image +
                 ", x1=" + x1 +
                 ", x2=" + x2 +
@@ -156,8 +160,17 @@ public class RenderedPartial {
 
     public void setImage(BufferedImage img) {
         this.image = img;
-        this.renderedWidth = img.getWidth();
-        this.renderedHeight = img.getHeight();
+        updateImageDimensions();
+    }
+
+    public void updateImageDimensions() {
+
+        if (getImage() == null) {
+            return;
+        }
+
+        this.renderedWidth = getImage().getWidth();
+        this.renderedHeight = getImage().getHeight();
     }
 
     /**

@@ -114,9 +114,10 @@ public class PartialRenderLab {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    System.out.println("Rendered / in memory used / in database used: "
+                    System.out.println("Rendered / in memory used / in database / in db used: "
                             + RenderedPartialFactory.getRenderedPartials()
                             + " / " + RenderedPartialStore.getInMemoryUsedPartials()
+                            + " / " + RenderedPartialStore.getAddedInDatabase()
                             + " / " + RenderedPartialStore.getInDatabaseUsedPartials()
                     );
                 }

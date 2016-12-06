@@ -3,7 +3,6 @@ package org.remipassmoilesel.partialrenderer;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -66,7 +65,7 @@ public class CacheRenderer {
             g2d.setColor(Color.darkGray);
         }
 
-        for (RenderedPartial part : rs.getPartials()) {
+        for (RenderedPartialImage part : rs.getPartials()) {
 
             // compute position of tile on map
             ReferencedEnvelope ev = part.getEnvelope();

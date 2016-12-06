@@ -8,7 +8,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.FactoryException;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,11 +22,12 @@ public class RenderedPartialStore {
 
     private static long inMemoryUsedPartials = 0;
     private static long inDatabaseUsedPartials = 0;
+    private static long addedInDatabase = 0;
 
     private final Path databasePath;
     private final JdbcPooledConnectionSource connectionSource;
 
-    private ArrayList<RenderedPartial> inMemory;
+    private ArrayList<RenderedPartialImage> inMemory;
 
     public RenderedPartialStore(Path databasePath) throws SQLException {
         this.databasePath = databasePath;
@@ -39,21 +39,21 @@ public class RenderedPartialStore {
         connectionSource.initialize();
 
         // create tables
-        TableUtils.createTableIfNotExists(connectionSource, RenderedPartial.class);
+        TableUtils.createTableIfNotExists(connectionSource, RenderedPartialImage.class);
 
         // create dao object
-        this.dao = DaoManager.createDao(connectionSource, RenderedPartial.class);
+        this.dao = DaoManager.createDao(connectionSource, RenderedPartialImage.class);
     }
 
-    public RenderedPartial getPartial(ReferencedEnvelope area) throws SQLException {
+    public RenderedPartialImage getPartial(ReferencedEnvelope area) throws SQLException {
 
-        RenderedPartial searched = new RenderedPartial(null, area);
+        RenderedPartialImage searched = new RenderedPartialImage(null, area);
 
         // search an existing partial in memory with a valid image
         // if found, return it
         int index = inMemory.indexOf(searched);
         if (index != -1) {
-            RenderedPartial part = inMemory.get(index);
+            RenderedPartialImage part = inMemory.get(index);
             if (part.getImage() != null) {
                 inMemoryUsedPartials++;
                 return part;
@@ -62,40 +62,41 @@ public class RenderedPartialStore {
 
         // no valid partial where found in memory, check database
         HashMap<String, Object> fields = new HashMap<String, Object>();
-        fields.put(RenderedPartial.PARTIAL_X1_FIELD_NAME, area.getMinX());
-        fields.put(RenderedPartial.PARTIAL_Y1_FIELD_NAME, area.getMinY());
-        fields.put(RenderedPartial.PARTIAL_X2_FIELD_NAME, area.getMaxX());
-        fields.put(RenderedPartial.PARTIAL_Y2_FIELD_NAME, area.getMaxY());
-        fields.put(RenderedPartial.PARTIAL_CRS_FIELD_NAME, RenderedPartial.crsToId(area.getCoordinateReferenceSystem()));
+        fields.put(RenderedPartialImage.PARTIAL_X1_FIELD_NAME, area.getMinX());
+        fields.put(RenderedPartialImage.PARTIAL_Y1_FIELD_NAME, area.getMinY());
+        fields.put(RenderedPartialImage.PARTIAL_X2_FIELD_NAME, area.getMaxX());
+        fields.put(RenderedPartialImage.PARTIAL_Y2_FIELD_NAME, area.getMaxY());
+        fields.put(RenderedPartialImage.PARTIAL_CRS_FIELD_NAME, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem()));
 
-        List<RenderedPartial> rs = dao.queryForFieldValues(fields);
+        List<RenderedPartialImage> results = dao.queryForFieldValues(fields);
 
         // one result found, prepare it and return it
-        if (rs.size() == 1) {
+        if (results.size() == 1) {
 
             inDatabaseUsedPartials++;
 
-            RenderedPartial part = rs.get(0);
+            RenderedPartialImage part = results.get(0);
             part.setupImageSoftReference();
-
+            part.updateImageDimensions();
             try {
                 part.setUpCRS();
             } catch (FactoryException e) {
                 throw new SQLException("Invalid partial, wrong CRS: " + part.getCrsId(), e);
             }
+
             return part;
         }
 
         // too much results, throw exception
-        if (rs.size() > 1) {
-            throw new SQLException("More than one result found: " + rs.size());
+        if (results.size() > 1) {
+            throw new SQLException("More than one result found: " + results.size());
         }
 
         // no result found, return it
         return null;
     }
 
-    public void addPartial(RenderedPartial part) throws SQLException {
+    public void addPartial(RenderedPartialImage part) throws SQLException {
 
         if (part.getImage() == null) {
             throw new NullPointerException("Image is null");
@@ -103,6 +104,8 @@ public class RenderedPartialStore {
 
         dao.create(part);
         inMemory.add(part);
+
+        addedInDatabase ++;
     }
 
     public static long getInDatabaseUsedPartials() {
@@ -111,5 +114,9 @@ public class RenderedPartialStore {
 
     public static long getInMemoryUsedPartials() {
         return inMemoryUsedPartials;
+    }
+
+    public static long getAddedInDatabase() {
+        return addedInDatabase;
     }
 }
