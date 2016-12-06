@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Timer;
 
 /**
- * Created by remipassmoilesel on 04/12/16.
+ *
  */
 public class CacheRenderLab {
 
@@ -128,11 +128,12 @@ public class CacheRenderLab {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    System.out.println("Rendered / in memory used / in database / in db used: "
-                            + RenderedPartialFactory.getRenderedPartials()
-                            + " / " + RenderedPartialStore.getInMemoryUsedPartials()
+                    System.out.println("Rendered / added in db / loaded from db / loaded from memory / waiting for processing: "
+                            + PartialRenderingQueue.getRenderedPartials()
                             + " / " + RenderedPartialStore.getAddedInDatabase()
-                            + " / " + RenderedPartialStore.getInDatabaseUsedPartials()
+                            + " / " + PartialRenderingQueue.getLoadedFromDatabase()
+                            + " / " + RenderedPartialFactory.getLoadedPartialsReused()
+                            + " / " + PartialRenderingQueue.getWaitingPartialsNumber()
                     );
                 }
             }, 1000, 1000);
@@ -150,31 +151,31 @@ public class CacheRenderLab {
         connectionSource.initialize();
 
         // create tables
-        TableUtils.createTableIfNotExists(connectionSource, RenderedPartialImage.class);
+        TableUtils.createTableIfNotExists(connectionSource, SerializableRenderedPartial.class);
 
         //-1.6999999999999995	0.0	49.300000000000004	51.0
         ReferencedEnvelope area = new ReferencedEnvelope(-1.699999999d, 0.0d, 49.3d, 51.0d, DefaultGeographicCRS.WGS84);
 
         // create dao object
-        Dao<RenderedPartialImage, ?> dao = DaoManager.createDao(connectionSource, RenderedPartialImage.class);
+        Dao<SerializableRenderedPartial, ?> dao = DaoManager.createDao(connectionSource, SerializableRenderedPartial.class);
 
-        Where<RenderedPartialImage, ?> statement = dao.queryBuilder().where().raw(
-                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
+        Where<SerializableRenderedPartial, ?> statement = dao.queryBuilder().where().raw(
+                "ABS(" + SerializableRenderedPartial.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
                         + "AND CRS=?;",
 
                 new SelectArg(SqlType.DOUBLE, area.getMinX()),
                 new SelectArg(SqlType.DOUBLE, area.getMaxX()),
                 new SelectArg(SqlType.DOUBLE, area.getMinY()),
                 new SelectArg(SqlType.DOUBLE, area.getMaxY()),
-                //new SelectArg(SqlType.STRING, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem())))
+                //new SelectArg(SqlType.STRING, SerializableRenderedPartial.crsToId(area.getCoordinateReferenceSystem())))
                 new SelectArg(SqlType.STRING, "null:WGS84(DD)"));
 //
-//        Where<RenderedPartialImage, ?> statement = dao.queryBuilder().where().raw(
-//                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
-//                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " ",
+//        Where<SerializableRenderedPartial, ?> statement = dao.queryBuilder().where().raw(
+//                "ABS(" + SerializableRenderedPartial.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+//                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " ",
 //
 //                new SelectArg(SqlType.DOUBLE, area.getMinX()),
 //                new SelectArg(SqlType.DOUBLE, area.getMaxX())
@@ -182,7 +183,7 @@ public class CacheRenderLab {
 
         System.out.println(statement);
 
-        List<RenderedPartialImage> results = statement.query();
+        List<SerializableRenderedPartial> results = statement.query();
 
         System.out.println(results);
 

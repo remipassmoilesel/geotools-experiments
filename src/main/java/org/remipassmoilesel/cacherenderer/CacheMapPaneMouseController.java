@@ -7,7 +7,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 
 /**
- * Created by remipassmoilesel on 05/12/16.
+ * Move map when user drag it on component and change scale when user use mouse wheel
  */
 public class CacheMapPaneMouseController extends MouseAdapter {
 
@@ -61,10 +61,10 @@ public class CacheMapPaneMouseController extends MouseAdapter {
 
         double zoomUnit = 0.3;
 
-        if(e.getWheelRotation() < 0){
+        if (e.getWheelRotation() < 0) {
             zoomUnit = -zoomUnit;
         }
-        
+
         pane.setPartialSideDg(pane.getPartialSideDg() + zoomUnit);
         pane.refreshMap();
     }

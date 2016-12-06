@@ -7,33 +7,39 @@ import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.table.TableUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.FactoryException;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by remipassmoilesel on 06/12/16.
+ * Store partials in RAM and in database
+ * <p>
+ * Partials should contains only soft links to images, in order to free memory when needed
  */
 public class RenderedPartialStore {
 
-    private static final String PRECISION = "0.0001";
-    private final Dao dao;
+    /**
+     * Precision used when search existing partials by area in database
+     */
+    private static final Double PRECISION = 0.0001d;
 
-    private static long inMemoryUsedPartials = 0;
-    private static long inDatabaseUsedPartials = 0;
-    private static long addedInDatabase = 0;
+    /**
+     * List of partials already used. They can be complete (with an image loaded) or not.
+     */
+    private ArrayList<RenderedPartial> loadedPartials;
 
+    private final Dao<SerializableRenderedPartial, ?> dao;
     private final Path databasePath;
     private final JdbcPooledConnectionSource connectionSource;
-
-    private ArrayList<RenderedPartialImage> inMemory;
+    private static long addedInDatabase = 0;
 
     public RenderedPartialStore(Path databasePath) throws SQLException {
+
+        this.loadedPartials = new ArrayList<>();
         this.databasePath = databasePath;
-        inMemory = new ArrayList<>();
 
         this.connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + databasePath + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
         connectionSource.setMaxConnectionAgeMillis(5 * 60 * 1000);
@@ -41,91 +47,101 @@ public class RenderedPartialStore {
         connectionSource.initialize();
 
         // create tables
-        TableUtils.createTableIfNotExists(connectionSource, RenderedPartialImage.class);
+        TableUtils.createTableIfNotExists(connectionSource, SerializableRenderedPartial.class);
 
         // create dao object
-        this.dao = DaoManager.createDao(connectionSource, RenderedPartialImage.class);
+        this.dao = DaoManager.createDao(connectionSource, SerializableRenderedPartial.class);
     }
 
-    public RenderedPartialImage getPartial(ReferencedEnvelope area) throws SQLException {
-
-        RenderedPartialImage searched = new RenderedPartialImage(null, area);
-
-        // search an existing partial in memory with a valid image
-        // if found, return it
-        int index = inMemory.indexOf(searched);
-        if (index != -1) {
-            RenderedPartialImage part = inMemory.get(index);
-            if (part.getImage() != null) {
-                inMemoryUsedPartials++;
-                return part;
+    /**
+     * Return a corresponding rendered partial
+     *
+     * @param env
+     * @return
+     */
+    public RenderedPartial searchInLoadedList(ReferencedEnvelope env) {
+        for (RenderedPartial part : loadedPartials) {
+            if (part.getEnvelope().equals(env) == false) {
+                continue;
             }
+            return part;
         }
+        return null;
+    }
 
-        // no valid partial where found in memory, check database
-        List<RenderedPartialImage> results = dao.queryBuilder().where().raw(
-                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
-                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
+    /**
+     * Update a partial by adding rendered image. If a valid image is found, return true, if not return false.
+     *
+     * @param part
+     * @return
+     * @throws SQLException
+     */
+    public boolean updatePartialFromDatabase(RenderedPartial part) throws SQLException {
+
+        // check if partial is in database
+        ReferencedEnvelope area = part.getEnvelope();
+        List<SerializableRenderedPartial> results = dao.queryBuilder().where().raw(
+                "ABS(" + SerializableRenderedPartial.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + SerializableRenderedPartial.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
                         + "AND CRS=?;",
 
                 new SelectArg(SqlType.DOUBLE, area.getMinX()),
                 new SelectArg(SqlType.DOUBLE, area.getMaxX()),
                 new SelectArg(SqlType.DOUBLE, area.getMinY()),
                 new SelectArg(SqlType.DOUBLE, area.getMaxY()),
-                new SelectArg(SqlType.STRING, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem()))).query();
+                new SelectArg(SqlType.STRING, SerializableRenderedPartial.crsToId(area.getCoordinateReferenceSystem()))).query();
 
-//        System.out.println("results.size()");
-//        System.out.println(results.size());
+        // no results found
+        if (results.size() < 1) {
+            return false;
+        }
+
+        // too much results, show error
+        if (results.size() > 1) {
+            new SQLException("More than one result found: " + results.size()).printStackTrace();
+        }
 
         // one result found, prepare it and return it
-        if (results.size() == 1) {
+        BufferedImage img = results.get(0).getImage();
+        int w = img.getWidth();
+        int h = img.getHeight();
+        part.setImage(img, w, h);
 
-            inDatabaseUsedPartials++;
+        // update in memory partial
+        loadedPartials.add(part);
 
-            RenderedPartialImage part = results.get(0);
-            part.setupImageSoftReference();
-            part.updateImageDimensions();
-            try {
-                part.setUpCRS();
-            } catch (FactoryException e) {
-                throw new SQLException("Invalid partial, wrong CRS: " + part.getCrsId(), e);
-            }
+        return true;
 
-            // update in memory partial
-            inMemory.add(part);
-
-            return part;
-        }
-
-        // too much results, throw exception
-        if (results.size() > 1) {
-            throw new SQLException("More than one result found: " + results.size());
-        }
-
-        // no result found, return it
-        return null;
     }
 
-    public void addPartial(RenderedPartialImage part) throws SQLException {
+    /**
+     * Add partial only in loaded list (RAM)
+     *
+     * @param part
+     */
+    public void addInLoadedList(RenderedPartial part) {
+        loadedPartials.add(part);
+    }
+
+    /**
+     * Add partial in loaded list and in database
+     *
+     * @param part
+     * @throws SQLException
+     */
+    public void addPartial(RenderedPartial part) throws SQLException {
 
         if (part.getImage() == null) {
             throw new NullPointerException("Image is null");
         }
 
-        dao.create(part);
-        inMemory.add(part);
+        dao.create(new SerializableRenderedPartial(part));
+
+        addInLoadedList(part);
 
         addedInDatabase++;
-    }
-
-    public static long getInDatabaseUsedPartials() {
-        return inDatabaseUsedPartials;
-    }
-
-    public static long getInMemoryUsedPartials() {
-        return inMemoryUsedPartials;
     }
 
     public static long getAddedInDatabase() {
