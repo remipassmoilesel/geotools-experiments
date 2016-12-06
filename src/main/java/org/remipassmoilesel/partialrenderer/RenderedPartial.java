@@ -214,7 +214,8 @@ public class RenderedPartial {
     }
 
     public static String crsToId(CoordinateReferenceSystem crs) {
-        return crs.getName().getAuthority() + ":" + crs.getName().getCode();
+        String authority = crs.getName().getAuthority() != null ? crs.getName().getAuthority() + ":" : "";
+        return authority + crs.getName().getCode();
     }
 
     public String getCrsId() {

@@ -13,7 +13,9 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.map.WMSLayer;
 import org.geotools.ows.ServiceException;
+import org.geotools.referencing.CRS;
 import org.geotools.styling.SLD;
+import org.opengis.referencing.FactoryException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +37,7 @@ public class PartialRenderLab {
     private static boolean setupShape = true;
     private static boolean showStats = true;
 
-    public static void main(String[] args) throws IOException, ServiceException {
+    public static void main(String[] args) throws IOException, ServiceException, FactoryException {
 
         FileUtils.deleteDirectory(CACHE_DATABASE_DIR.toFile());
 
