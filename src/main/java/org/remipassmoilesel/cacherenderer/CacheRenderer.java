@@ -74,7 +74,7 @@ public class CacheRenderer {
 
         }
 
-        // draw maximums bounds aked if necessary
+        // draw maximums bounds asked if necessary
         if (showGrid) {
 
             if (worldPosition != null) {

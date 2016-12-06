@@ -20,11 +20,12 @@ import java.util.ArrayList;
  * renderer is supposed to compensate (no deformation should appear)
  * <p>
  * Need tests at low latitude
- *
+ * <p>
  * <p>//TOD: multithread rendering</p>
  */
 public class RenderedPartialFactory {
 
+    private static final double MIN_PARTIAL_SIDE_DG = 0.05d;
     /**
      * Count how many partials are rendered
      */
@@ -75,8 +76,6 @@ public class RenderedPartialFactory {
      */
     public RenderedPartialQueryResult intersect(Point2D ulc, Dimension pixelDimension, CoordinateReferenceSystem crs) {
 
-        double partialSideDg = this.partialSideDg;
-
         // get width and height in decimal dg
         double wdg = partialSideDg * pixelDimension.width / partialSidePx;
         double hdg = partialSideDg * pixelDimension.height / partialSidePx;
@@ -103,10 +102,15 @@ public class RenderedPartialFactory {
         //System.out.println();
         //System.out.println("public RenderedPartialQueryResult intersect(ReferencedEnvelope worldBounds) {");
 
-        ArrayList<RenderedPartialImage> rsparts = new ArrayList<>();
+        // keep the same value until end of rendering process, even if value is changed by setter
+        double partialSideDg = this.partialSideDg;
 
         // Side value in decimal degree of each partial
-        double partialSideDg = this.partialSideDg;
+        if (partialSideDg < MIN_PARTIAL_SIDE_DG) {
+            partialSideDg = MIN_PARTIAL_SIDE_DG;
+        }
+
+        ArrayList<RenderedPartialImage> rsparts = new ArrayList<>();
 
         // count partials
         int tileNumberW = 0;
@@ -211,7 +215,7 @@ public class RenderedPartialFactory {
     }
 
     /**
-     * Add a value and round it to 6 decimal, in order to normalize coordinates and have reusable partials
+     * Round values to 6 decimal, in order to normalize coordinates and have reusable partials
      *
      * @param coord
      * @return
@@ -240,8 +244,14 @@ public class RenderedPartialFactory {
         //System.out.println("Rendered: " + bounds);
     }
 
-    public void setPartialSideDg(double partialSideDg) {
-        this.partialSideDg = partialSideDg;
+    public void setPartialSideDg(double sideDg) {
+
+        this.partialSideDg = sideDg;
+
+        if (partialSideDg < MIN_PARTIAL_SIDE_DG) {
+            partialSideDg = MIN_PARTIAL_SIDE_DG;
+        }
+
     }
 
     /**
