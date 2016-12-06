@@ -2,12 +2,16 @@ package org.remipassmoilesel.partialrenderer;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.field.SqlType;
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
+import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.table.TableUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.FactoryException;
 
 import java.nio.file.Path;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +22,7 @@ import java.util.List;
  */
 public class RenderedPartialStore {
 
+    private static final String PRECISION = "0.0001";
     private final Dao dao;
 
     private static long inMemoryUsedPartials = 0;
@@ -61,14 +66,21 @@ public class RenderedPartialStore {
         }
 
         // no valid partial where found in memory, check database
-        HashMap<String, Object> fields = new HashMap<String, Object>();
-        fields.put(RenderedPartialImage.PARTIAL_X1_FIELD_NAME, area.getMinX());
-        fields.put(RenderedPartialImage.PARTIAL_Y1_FIELD_NAME, area.getMinY());
-        fields.put(RenderedPartialImage.PARTIAL_X2_FIELD_NAME, area.getMaxX());
-        fields.put(RenderedPartialImage.PARTIAL_Y2_FIELD_NAME, area.getMaxY());
-        fields.put(RenderedPartialImage.PARTIAL_CRS_FIELD_NAME, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem()));
+        List<RenderedPartialImage> results = dao.queryBuilder().where().raw(
+                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND CRS=?;",
 
-        List<RenderedPartialImage> results = dao.queryForFieldValues(fields);
+                new SelectArg(SqlType.DOUBLE, area.getMinX()),
+                new SelectArg(SqlType.DOUBLE, area.getMaxX()),
+                new SelectArg(SqlType.DOUBLE, area.getMinY()),
+                new SelectArg(SqlType.DOUBLE, area.getMaxY()),
+                new SelectArg(SqlType.STRING, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem()))).query();
+
+//        System.out.println("results.size()");
+//        System.out.println(results.size());
 
         // one result found, prepare it and return it
         if (results.size() == 1) {
@@ -83,6 +95,9 @@ public class RenderedPartialStore {
             } catch (FactoryException e) {
                 throw new SQLException("Invalid partial, wrong CRS: " + part.getCrsId(), e);
             }
+
+            // update in memory partial
+            inMemory.add(part);
 
             return part;
         }
@@ -105,7 +120,7 @@ public class RenderedPartialStore {
         dao.create(part);
         inMemory.add(part);
 
-        addedInDatabase ++;
+        addedInDatabase++;
     }
 
     public static long getInDatabaseUsedPartials() {

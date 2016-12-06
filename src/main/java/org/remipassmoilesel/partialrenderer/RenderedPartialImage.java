@@ -21,9 +21,10 @@ import java.util.Objects;
  * Final goal is to store partials in a database and to retain render images with soft links,
  * to avoid OutOfMemoryException
  */
-@DatabaseTable(tableName = "PARTIALS")
+@DatabaseTable(tableName = RenderedPartialImage.TABLE_NAME)
 public class RenderedPartialImage {
 
+    public static final String TABLE_NAME = "PARTIALS";
     public static final String PARTIAL_ID_FIELD_NAME = "ID";
     public static final String PARTIAL_IMAGE_FIELD_NAME = "IMAGE";
     public static final String PARTIAL_X1_FIELD_NAME = "X1";
@@ -31,6 +32,7 @@ public class RenderedPartialImage {
     public static final String PARTIAL_Y1_FIELD_NAME = "Y1";
     public static final String PARTIAL_Y2_FIELD_NAME = "Y2";
     public static final String PARTIAL_CRS_FIELD_NAME = "CRS";
+
 
     @DatabaseField(generatedId = true, columnName = PARTIAL_ID_FIELD_NAME)
     private long id;
@@ -149,7 +151,7 @@ public class RenderedPartialImage {
                 ", x2=" + x2 +
                 ", y1=" + y1 +
                 ", y2=" + y2 +
-                ", crs=" + crs.getName() +
+                ", crs=" + (crs != null ? crs.getName() : crs) +
                 '}';
     }
 
@@ -223,7 +225,7 @@ public class RenderedPartialImage {
 
     public void setCRS(CoordinateReferenceSystem crs) {
         this.crs = crs;
-        this.crsId = crs.getName().getAuthority() + ":" + crs.getName().getCode();
+        this.crsId = crsToId(crs);
     }
 
     public static String crsToId(CoordinateReferenceSystem crs) {

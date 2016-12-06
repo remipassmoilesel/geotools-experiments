@@ -1,6 +1,13 @@
 package org.remipassmoilesel.partialrenderer;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.field.DataPersisterManager;
+import com.j256.ormlite.field.SqlType;
+import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
+import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.Where;
+import com.j256.ormlite.table.TableUtils;
 import org.apache.commons.io.FileUtils;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -9,11 +16,13 @@ import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WMSUtils;
 import org.geotools.data.wms.WebMapServer;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.map.WMSLayer;
 import org.geotools.ows.ServiceException;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLD;
 import org.opengis.referencing.FactoryException;
 
@@ -24,7 +33,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
 import java.util.Timer;
 
 /**
@@ -37,7 +48,9 @@ public class PartialRenderLab {
     private static boolean setupShape = true;
     private static boolean showStats = true;
 
-    public static void main(String[] args) throws IOException, ServiceException, FactoryException {
+    public static void main(String[] args) throws IOException, ServiceException, FactoryException, SQLException {
+
+        //sqlLab();
 
         FileUtils.deleteDirectory(CACHE_DATABASE_DIR.toFile());
 
@@ -124,6 +137,55 @@ public class PartialRenderLab {
             }, 1000, 1000);
 
         }
+
+    }
+
+    public static void sqlLab() throws SQLException {
+        String PRECISION = "0.000001";
+
+        JdbcPooledConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + PartialRenderLab.CACHE_DATABASE_DIR.resolve("partials.db") + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
+        connectionSource.setMaxConnectionAgeMillis(5 * 60 * 1000);
+        connectionSource.setTestBeforeGet(true);
+        connectionSource.initialize();
+
+        // create tables
+        TableUtils.createTableIfNotExists(connectionSource, RenderedPartialImage.class);
+
+        //-1.6999999999999995	0.0	49.300000000000004	51.0
+        ReferencedEnvelope area = new ReferencedEnvelope(-1.699999999d, 0.0d, 49.3d, 51.0d, DefaultGeographicCRS.WGS84);
+
+        // create dao object
+        Dao<RenderedPartialImage, ?> dao = DaoManager.createDao(connectionSource, RenderedPartialImage.class);
+
+        Where<RenderedPartialImage, ?> statement = dao.queryBuilder().where().raw(
+                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y1_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND ABS(" + RenderedPartialImage.PARTIAL_Y2_FIELD_NAME + " - ?) < " + PRECISION + " "
+                        + "AND CRS=?;",
+
+                new SelectArg(SqlType.DOUBLE, area.getMinX()),
+                new SelectArg(SqlType.DOUBLE, area.getMaxX()),
+                new SelectArg(SqlType.DOUBLE, area.getMinY()),
+                new SelectArg(SqlType.DOUBLE, area.getMaxY()),
+                //new SelectArg(SqlType.STRING, RenderedPartialImage.crsToId(area.getCoordinateReferenceSystem())))
+                new SelectArg(SqlType.STRING, "null:WGS84(DD)"));
+//
+//        Where<RenderedPartialImage, ?> statement = dao.queryBuilder().where().raw(
+//                "ABS(" + RenderedPartialImage.PARTIAL_X1_FIELD_NAME + " - ?) < " + PRECISION + " "
+//                        + "AND ABS(" + RenderedPartialImage.PARTIAL_X2_FIELD_NAME + " - ?) < " + PRECISION + " ",
+//
+//                new SelectArg(SqlType.DOUBLE, area.getMinX()),
+//                new SelectArg(SqlType.DOUBLE, area.getMaxX())
+//        );
+
+        System.out.println(statement);
+
+        List<RenderedPartialImage> results = statement.query();
+
+        System.out.println(results);
+
+        System.exit(0);
 
     }
 
