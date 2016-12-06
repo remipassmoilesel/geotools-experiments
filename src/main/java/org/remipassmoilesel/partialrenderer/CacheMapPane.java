@@ -87,4 +87,8 @@ public class CacheMapPane extends JPanel {
     public int getPartialSidePx() {
         return renderer.getPartialSidePx();
     }
+
+    public void setPartialSideDg(double partialSideDg) {
+        renderer.setPartialSideDg(partialSideDg);
+    }
 }

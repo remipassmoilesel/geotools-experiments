@@ -1,5 +1,7 @@
 package org.remipassmoilesel.partialrenderer;
 
+import com.j256.ormlite.field.DataPersisterManager;
+import org.apache.commons.io.FileUtils;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.ows.Layer;
@@ -28,11 +30,16 @@ import java.util.Timer;
  */
 public class PartialRenderLab {
 
+    public static final Path CACHE_DATABASE_DIR = Paths.get("data/renderedPartialsStore/");
     private static boolean setupWms = false;
     private static boolean setupShape = true;
     private static boolean showStats = true;
 
     public static void main(String[] args) throws IOException, ServiceException {
+
+        FileUtils.deleteDirectory(CACHE_DATABASE_DIR.toFile());
+
+        DataPersisterManager.registerDataPersisters(BufferedImagePersister.getSingleton());
 
         String shapePath = "data/france-communes/communes-20160119.shp";
         String wmsUrl = "http://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities";
@@ -92,19 +99,24 @@ public class PartialRenderLab {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             // listen map move
-            CacheMapPaneMouseMover mmover = new CacheMapPaneMouseMover(pane);
-            pane.addMouseMotionListener(mmover);
-            pane.addMouseListener(mmover);
+            CacheMapPaneMouseController mcontrol = new CacheMapPaneMouseController(pane);
+            pane.addMouseMotionListener(mcontrol);
+            pane.addMouseListener(mcontrol);
+            pane.addMouseWheelListener(mcontrol);
 
         });
 
-        if(showStats){
+        if (showStats) {
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    System.out.println("Rendered / reused: " + RenderedPartialFactory.getRenderedPartials() + " / " + RenderedPartialFactory.getReusedPartials());
+                    System.out.println("Rendered / in memory used / in database used: "
+                            + RenderedPartialFactory.getRenderedPartials()
+                            + " / " + RenderedPartialStore.getInMemoryUsedPartials()
+                            + " / " + RenderedPartialStore.getInDatabaseUsedPartials()
+                    );
                 }
             }, 1000, 1000);
 

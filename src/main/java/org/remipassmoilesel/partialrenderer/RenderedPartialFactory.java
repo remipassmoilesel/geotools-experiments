@@ -10,6 +10,8 @@ import org.remipassmoilesel.draw.RendererBuilder;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -25,17 +27,7 @@ public class RenderedPartialFactory {
     /**
      * Count how many partials are rendered
      */
-    private static int renderedPartials = 0;
-
-    /**
-     * Count how many partials are reused
-     */
-    private static int reusedPartials = 0;
-
-    /**
-     * List of available in memory partials.
-     */
-    private final ArrayList<RenderedPartial> partials;
+    private static long renderedPartials = 0;
 
     /**
      * Geotools renderer used to create partials
@@ -46,6 +38,7 @@ public class RenderedPartialFactory {
      * Associated map content
      */
     private final MapContent mapContent;
+    private final RenderedPartialStore store;
 
     /**
      * Zoom level of current rendering
@@ -56,11 +49,16 @@ public class RenderedPartialFactory {
 
     public RenderedPartialFactory(MapContent content) {
 
-        partials = new ArrayList<>();
         renderer = RendererBuilder.getRenderer();
         mapContent = content;
 
         renderer.setMapContent(mapContent);
+
+        try {
+            store = new RenderedPartialStore(PartialRenderLab.CACHE_DATABASE_DIR.resolve("partials.db"));
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to initialize database: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -125,21 +123,30 @@ public class RenderedPartialFactory {
             // area of current partial
             ReferencedEnvelope area = new ReferencedEnvelope(x, x + partialSideDg, y, y + partialSideDg, DefaultGeographicCRS.WGS84);
 
-            // find existing partial
-            RenderedPartial searched = new RenderedPartial(null, area);
-            int index = partials.indexOf(searched);
-            if (index != -1) {
-                rsparts.add(partials.get(index));
-
-                reusedPartials++;
+            // try to find partial in store
+            RenderedPartial part = null;
+            try {
+                part = store.getPartial(area);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
-            // or create a new one
-            else {
-                renderPartial(searched);
-                partials.add(searched);
-                rsparts.add(searched);
+            // partial have been found, add to results
+            if (part != null) {
+                rsparts.add(part);
+            }
 
+            // partial not found, create a new one
+            else {
+                RenderedPartial newPart = new RenderedPartial(null, area);
+                renderPartial(newPart);
+                try {
+                    store.addPartial(newPart);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    continue;
+                }
+                rsparts.add(newPart);
                 renderedPartials++;
             }
 
@@ -219,12 +226,13 @@ public class RenderedPartialFactory {
         this.partialSideDg = partialSideDg;
     }
 
-    public static int getRenderedPartials() {
+    /**
+     * Get number of rendered partial. For debug purpose.
+     *
+     * @return
+     */
+    public static long getRenderedPartials() {
         return renderedPartials;
-    }
-
-    public static int getReusedPartials() {
-        return reusedPartials;
     }
 
     public int getPartialSidePx() {

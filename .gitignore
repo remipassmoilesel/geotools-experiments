@@ -13,3 +13,4 @@ geoserver/*
 data/large_tiff/*
 !data/large_tiff/get-datas.sh
 
+data/renderedPartialsStore/*

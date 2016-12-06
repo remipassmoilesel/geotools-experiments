@@ -162,4 +162,8 @@ public class CacheRenderer {
     public int getPartialSidePx() {
         return partialFactory.getPartialSidePx();
     }
+
+    public void setPartialSideDg(double partialSideDg) {
+        partialFactory.setPartialSideDg(partialSideDg);
+    }
 }

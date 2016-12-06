@@ -1,10 +1,15 @@
 package org.remipassmoilesel.partialrenderer;
 
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.image.BufferedImage;
+import java.lang.ref.SoftReference;
 import java.util.Objects;
 
 /**
@@ -17,33 +22,54 @@ import java.util.Objects;
  * Final goal is to store partials in a database and to retain render images with soft links,
  * to avoid OutOfMemoryException
  */
-@DatabaseTable(tableName = "partials")
+@DatabaseTable(tableName = "PARTIALS")
 public class RenderedPartial {
+
+    public static final String PARTIAL_ID_FIELD_NAME = "ID";
+    public static final String PARTIAL_IMAGE_FIELD_NAME = "IMAGE";
+    public static final String PARTIAL_X1_FIELD_NAME = "X1";
+    public static final String PARTIAL_X2_FIELD_NAME = "X2";
+    public static final String PARTIAL_Y1_FIELD_NAME = "Y1";
+    public static final String PARTIAL_Y2_FIELD_NAME = "Y2";
+    public static final String PARTIAL_CRS_FIELD_NAME = "CRS";
+
+    @DatabaseField(generatedId = true, columnName = PARTIAL_ID_FIELD_NAME)
+    private long id;
 
     /**
      * Rendered image
      */
+    @DatabaseField(columnName = PARTIAL_IMAGE_FIELD_NAME, persisterClass = BufferedImagePersister.class)
     private BufferedImage image;
+
+    private SoftReference<BufferedImage> imageSoftRef;
 
     /**
      * World coordinate BLC
      */
+    @DatabaseField(columnName = PARTIAL_X1_FIELD_NAME)
     private double x1;
 
     /**
      * World coordinate
      */
+    @DatabaseField(columnName = PARTIAL_X2_FIELD_NAME)
     private double x2;
 
     /**
      * World coordinate
      */
+    @DatabaseField(columnName = PARTIAL_Y1_FIELD_NAME)
     private double y1;
 
     /**
      * World coordinate
      */
+    @DatabaseField(columnName = PARTIAL_Y2_FIELD_NAME)
     private double y2;
+
+    @DatabaseField(columnName = PARTIAL_CRS_FIELD_NAME)
+    private String crsId;
 
     private CoordinateReferenceSystem crs;
 
@@ -70,7 +96,7 @@ public class RenderedPartial {
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
-        this.crs = crs;
+        setCRS(crs);
 
         // not used for now
         this.layerId = "";
@@ -78,6 +104,13 @@ public class RenderedPartial {
         this.generated = System.currentTimeMillis();
     }
 
+    /**
+     * Return reference to image if image is yet in memory.
+     * <p>
+     * If not return null
+     *
+     * @return
+     */
     public BufferedImage getImage() {
         return image;
     }
@@ -148,5 +181,43 @@ public class RenderedPartial {
 
     public int getRenderedWidth() {
         return renderedWidth;
+    }
+
+    /**
+     * Create a soft reference to the image and break internal hard reference
+     */
+    public void setupImageSoftReference() {
+
+        if (image == null) {
+            throw new NullPointerException("Cannot setup soft reference: image is null");
+        }
+
+        // create soft reference
+        this.imageSoftRef = new SoftReference<>(this.image);
+
+        // break old ones
+        this.image = null;
+    }
+
+    public void setUpCRS() throws FactoryException {
+
+        if (this.crsId == null) {
+            throw new NullPointerException("Cannot setup CRS, CRS id is null");
+        }
+
+        this.crs = CRS.decode(crsId);
+    }
+
+    public void setCRS(CoordinateReferenceSystem crs) {
+        this.crs = crs;
+        this.crsId = crs.getName().getAuthority() + ":" + crs.getName().getCode();
+    }
+
+    public static String crsToId(CoordinateReferenceSystem crs) {
+        return crs.getName().getAuthority() + ":" + crs.getName().getCode();
+    }
+
+    public String getCrsId() {
+        return crsId;
     }
 }

@@ -3,18 +3,19 @@ package org.remipassmoilesel.partialrenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 
 /**
  * Created by remipassmoilesel on 05/12/16.
  */
-public class CacheMapPaneMouseMover extends MouseAdapter {
+public class CacheMapPaneMouseController extends MouseAdapter {
 
     private final CacheMapPane pane;
     private double move = 0.1;
     private Point lastPosition;
 
-    public CacheMapPaneMouseMover(CacheMapPane pane) {
+    public CacheMapPaneMouseController(CacheMapPane pane) {
         this.pane = pane;
     }
 
@@ -52,5 +53,19 @@ public class CacheMapPaneMouseMover extends MouseAdapter {
     public void mouseReleased(MouseEvent e) {
         super.mouseReleased(e);
         lastPosition = null;
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        super.mouseWheelMoved(e);
+
+        double zoomUnit = 0.3;
+
+        if(e.getWheelRotation() < 0){
+            zoomUnit = -zoomUnit;
+        }
+        
+        pane.setPartialSideDg(pane.getPartialSideDg() + zoomUnit);
+        pane.repaint();
     }
 }
