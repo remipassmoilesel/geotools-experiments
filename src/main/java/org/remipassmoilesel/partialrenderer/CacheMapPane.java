@@ -79,4 +79,12 @@ public class CacheMapPane extends JPanel {
     public Point2D getWorldPosition() {
         return new Point2D.Double(worldPosition.getX(), worldPosition.getY());
     }
+
+    public double getPartialSideDg() {
+        return renderer.getPartialSideDg();
+    }
+
+    public int getPartialSidePx() {
+        return renderer.getPartialSidePx();
+    }
 }

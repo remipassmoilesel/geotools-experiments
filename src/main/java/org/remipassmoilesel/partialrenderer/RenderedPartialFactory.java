@@ -226,4 +226,13 @@ public class RenderedPartialFactory {
     public static int getReusedPartials() {
         return reusedPartials;
     }
+
+    public int getPartialSidePx() {
+        return partialSidePx;
+    }
+
+    public double getPartialSideDg() {
+        return partialSideDg;
+    }
+
 }

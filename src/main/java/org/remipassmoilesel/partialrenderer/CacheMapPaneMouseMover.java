@@ -27,19 +27,20 @@ public class CacheMapPaneMouseMover extends MouseAdapter {
             return;
         }
 
+        // get mouse move
         Point m = e.getPoint();
-        double mx = lastPosition.getX() - m.getX() > 0 ? +move : -move;
-        double my = lastPosition.getY() - m.getY() > 0 ? -move : +move;
+        double mx = lastPosition.getX() - m.getX();
+        double my = lastPosition.getY() - m.getY();
 
-        //System.out.println("pane.addMouseMotionListener(new MouseAdapter() {");
-        //System.out.println(mx);
-        //System.out.println(my);
+        // scale it
+        int psx = pane.getPartialSidePx();
+        double psd = pane.getPartialSideDg();
+        mx = mx * psd / psx;
+        my = my * psd / psx;
 
+        // adapt world position
         Point2D p = pane.getWorldPosition();
-
-        //System.out.println(p);
-
-        pane.setWorldPosition(new Point2D.Double(p.getX() + mx, p.getY() + my));
+        pane.setWorldPosition(new Point2D.Double(p.getX() + mx, p.getY() - my));
 
         pane.repaint();
 

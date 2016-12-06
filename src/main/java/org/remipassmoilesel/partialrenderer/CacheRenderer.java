@@ -154,4 +154,12 @@ public class CacheRenderer {
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
     }
+
+    public double getPartialSideDg() {
+        return partialFactory.getPartialSideDg();
+    }
+
+    public int getPartialSidePx() {
+        return partialFactory.getPartialSidePx();
+    }
 }
