@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -40,7 +40,7 @@ import java.util.Timer;
 /**
  *
  */
-public class CacheRenderLab {
+public class CachedRenderLab {
 
     public static final Path CACHE_DATABASE_DIR = Paths.get("data/renderedPartialsStore/");
     private static boolean setupWms = false;
@@ -98,7 +98,7 @@ public class CacheRenderLab {
 
         SwingUtilities.invokeLater(() -> {
 
-            CacheMapPane pane = new CacheMapPane(mapContent);
+            CachedMapPane pane = new CachedMapPane(mapContent);
 
             //pane.setWorldBounds(start);
             pane.setWorldPosition(start);
@@ -113,7 +113,7 @@ public class CacheRenderLab {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             // listen map move
-            CacheMapPaneMouseController mcontrol = new CacheMapPaneMouseController(pane);
+            CachedMapPaneMouseController mcontrol = new CachedMapPaneMouseController(pane);
             pane.addMouseMotionListener(mcontrol);
             pane.addMouseListener(mcontrol);
             pane.addMouseWheelListener(mcontrol);
@@ -145,7 +145,7 @@ public class CacheRenderLab {
     public static void sqlLab() throws SQLException {
         String PRECISION = "0.000001";
 
-        JdbcPooledConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + CacheRenderLab.CACHE_DATABASE_DIR.resolve("partials.db") + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
+        JdbcPooledConnectionSource connectionSource = new JdbcPooledConnectionSource("jdbc:h2:./" + CachedRenderLab.CACHE_DATABASE_DIR.resolve("partials.db") + ";DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE", "", "");
         connectionSource.setMaxConnectionAgeMillis(5 * 60 * 1000);
         connectionSource.setTestBeforeGet(true);
         connectionSource.initialize();

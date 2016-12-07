@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
@@ -9,7 +9,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -17,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * Cache is managed by a RenderedPartialFactory. This partial factory produce portions of map and store it in database.
  */
-public class CacheMapPane extends JPanel {
+public class CachedMapPane extends JPanel {
 
     /**
      * Lock to prevent too much thread rendering
@@ -59,7 +58,7 @@ public class CacheMapPane extends JPanel {
      */
     private RenderedPartialQueryResult currentPartials;
 
-    public CacheMapPane(MapContent map) {
+    public CachedMapPane(MapContent map) {
 
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
@@ -142,7 +141,7 @@ public class CacheMapPane extends JPanel {
             //System.out.println("Render task launched");
 
             // get component size
-            Dimension dim = CacheMapPane.this.getSize();
+            Dimension dim = CachedMapPane.this.getSize();
 
             if (dim.width < 1 || dim.height < 1) {
                 System.out.println("Screen bounds too small");
@@ -153,7 +152,7 @@ public class CacheMapPane extends JPanel {
             currentPartials = partialFactory.intersect(worldPosition, dim, map.getCoordinateReferenceSystem(),
                     () -> {
                         // each time a partial come, map will be repaint
-                        CacheMapPane.this.repaint();
+                        CachedMapPane.this.repaint();
                     });
 
             // repaint component

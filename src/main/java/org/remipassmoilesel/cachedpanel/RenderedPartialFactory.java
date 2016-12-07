@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
@@ -54,7 +54,7 @@ public class RenderedPartialFactory {
         mapContent = content;
 
         try {
-            store = new RenderedPartialStore(CacheRenderLab.CACHE_DATABASE_DIR.resolve("partials.db"));
+            store = new RenderedPartialStore(CachedRenderLab.CACHE_DATABASE_DIR.resolve("partials.db"));
         } catch (SQLException e) {
             throw new RuntimeException("Unable to initialize database: " + e.getMessage(), e);
         }

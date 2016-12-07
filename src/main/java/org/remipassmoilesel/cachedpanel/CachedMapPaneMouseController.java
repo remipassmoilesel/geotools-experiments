@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,13 +9,13 @@ import java.awt.geom.Point2D;
 /**
  * Move map when user drag it on component and change scale when user use mouse wheel
  */
-public class CacheMapPaneMouseController extends MouseAdapter {
+public class CachedMapPaneMouseController extends MouseAdapter {
 
-    private final CacheMapPane pane;
+    private final CachedMapPane pane;
     private double move = 0.1;
     private Point lastPosition;
 
-    public CacheMapPaneMouseController(CacheMapPane pane) {
+    public CachedMapPaneMouseController(CachedMapPane pane) {
         this.pane = pane;
     }
 

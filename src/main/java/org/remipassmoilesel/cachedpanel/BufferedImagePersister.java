@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;

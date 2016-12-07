@@ -1,4 +1,4 @@
-package org.remipassmoilesel.cacherenderer;
+package org.remipassmoilesel.cachedpanel;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
