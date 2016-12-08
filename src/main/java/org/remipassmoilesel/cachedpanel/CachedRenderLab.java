@@ -38,7 +38,9 @@ import java.util.List;
 import java.util.Timer;
 
 /**
+ * Simple experiments around dynamic map rendering.
  *
+ * This is just an example and should be improved, specially on envelope comparison (they have to be compared with less precision)
  */
 public class CachedRenderLab {
 
