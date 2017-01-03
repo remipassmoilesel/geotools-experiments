@@ -12,6 +12,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.*;
+import org.geotools.styling.Stroke;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
 import org.remipassmoilesel.utils.GuiUtils;
@@ -20,13 +21,14 @@ import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.PrimitiveIterator;
 import java.util.Random;
 
 /**
  * Created by remipassmoilesel on 03/01/17.
  */
-public class SLDLab {
+public class StyleLab3 {
 
     private static final StyleFactory sf = CommonFactoryFinder.getStyleFactory();
     private static final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
@@ -40,7 +42,8 @@ public class SLDLab {
         // main style
         // Style style = createDefaultStyle();
         // Style style = createSimpleStyleFromSLD();
-        Style style = createStyleFromSLD2();
+        // Style style = createStyleFromSLD2();
+        Style style = specialRoundGraphicStrokes();
 
         // create a feature layer
         DefaultFeatureCollection coll = new DefaultFeatureCollection();
@@ -76,6 +79,50 @@ public class SLDLab {
 
     }
 
+    private static Style specialRoundGraphicStrokes() {
+
+        // See SLDParser.class for details about special styles
+
+        // create graphic mark
+        Stroke blueStroke = sf.stroke(ff.literal(Color.blue), null, ff.literal(2), null, null, null, null);
+        Fill redFill = sf.fill(null, ff.literal(Color.red), ff.literal(1.0));
+
+        Mark mark = sf.getCircleMark();
+        mark.setFill(redFill);
+        mark.setStroke(blueStroke);
+
+        Graphic graphic = sf.createDefaultGraphic();
+        graphic.graphicalSymbols().clear();
+        graphic.graphicalSymbols().add(mark);
+        graphic.setSize(ff.literal(15));
+        graphic.setOpacity(ff.literal(0.5));
+
+        Stroke roundStroke = sf.getDefaultStroke();
+        roundStroke.setGraphicStroke(graphic);
+
+        // this instruction set spaces of rounds
+        roundStroke.setDashArray(Arrays.asList(ff.literal(15), ff.literal(10)));
+
+        // and line symbolizer to draw line
+        LineSymbolizer lineSym = sf.createLineSymbolizer(blueStroke, null);
+
+        // create a line symbolizer to draw rounds
+        LineSymbolizer roundedLineSym = sf.createLineSymbolizer(roundStroke, null);
+
+        // create rule
+        Rule r = sf.createRule();
+        r.symbolizers().add(roundedLineSym);
+        r.symbolizers().add(lineSym);
+
+        // add it to style
+        Style style = sf.createStyle();
+        FeatureTypeStyle fts = sf.createFeatureTypeStyle();
+        fts.rules().add(r);
+        style.featureTypeStyles().add(fts);
+
+        return style;
+    }
+
     /**
      * Unserialize SLD stylesheet
      *
@@ -84,14 +131,12 @@ public class SLDLab {
     private static Style createStyleFromSLD2() {
 
         //String path = "/styleSld/style.sld";
-        //String path = "/styleSld/style_hatching.sld";
-        String path = "/styleSld/style_label.sld";
-        InputStream stream = SLDLab.class.getResourceAsStream(path);
+        String path = "/styleSld/style_hatching.sld";
+        //String path = "/styleSld/style_label.sld";
+        InputStream stream = StyleLab3.class.getResourceAsStream(path);
 
         SLDParser stylereader = new SLDParser(sf, stream);
         StyledLayerDescriptor sld = stylereader.parseSLD();
-
-        System.out.println(sld.layers());
 
         NamedLayer layer = (NamedLayer) sld.layers().get(0);
 

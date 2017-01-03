@@ -10,6 +10,8 @@ target/*
 geoserver/*
 !geoserver/install-geoserver.sh
 
+geoserver-sources/
+
 data/large_tiff/*
 !data/large_tiff/get-datas.sh
 
