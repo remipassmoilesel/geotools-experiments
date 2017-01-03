@@ -106,21 +106,6 @@
             <version>${geotools.version}</version>
         </dependency>
 
-        <!--
-
-        If not found, install it manually:
-        $ git clone https://...geotools...
-        $ cd ... gt-imagecollection ...
-        $ mvn install
-
-        -->
-
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-imagecollection</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic-jdbc</artifactId>
