@@ -14,6 +14,8 @@ import org.opengis.style.ContrastMethod;
 import org.remipassmoilesel.swing.CustomMapFrame;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
@@ -163,6 +165,44 @@ public class GuiUtils {
         sym.setChannelSelection(sel);
 
         return SLD.wrapSymbolizers(sym);
+
+    }
+
+    /**
+     * Show image in window
+     *
+     * @param img
+     */
+    public static void showImage(BufferedImage img) {
+        showImage("", img);
+    }
+
+    /**
+     * Show image in windwos, with specified title
+     *
+     * @param title
+     * @param img
+     */
+    public static void showImage(String title, BufferedImage img) {
+
+        SwingUtilities.invokeLater(() -> {
+
+            JFrame frame = new JFrame();
+            frame.setTitle(title + " " + img.toString());
+
+            // create label for image, with border
+            JLabel lbl = new JLabel(new ImageIcon(img));
+            lbl.setBorder(BorderFactory.createLineBorder(Color.blue));
+
+            JPanel content = new JPanel();
+            content.add(lbl);
+
+            frame.setContentPane(content);
+
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
 
     }
 

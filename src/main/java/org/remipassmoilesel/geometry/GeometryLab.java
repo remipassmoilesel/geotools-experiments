@@ -1,5 +1,6 @@
 package org.remipassmoilesel.geometry;
 
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -21,6 +22,9 @@ public class GeometryLab {
         System.out.println(mapBoundsToRender.getMaximum(0));
         System.out.println(mapBoundsToRender.getMinimum(1));
         System.out.println(mapBoundsToRender.getMaximum(1));
+
+        // convert referenced envelope to geometry
+        JTS.toGeometry(new ReferencedEnvelope());
 
     }
 
