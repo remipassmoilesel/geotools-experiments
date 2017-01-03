@@ -51,6 +51,7 @@ public class SLDLab {
         tbuilder.setName("feature1");
         tbuilder.setCRS(DefaultGeographicCRS.WGS84);
         tbuilder.add("geometry", Geometry.class);
+        tbuilder.add("name", String.class);
 
         SimpleFeatureType type = tbuilder.buildFeatureType();
         SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(type);
@@ -67,6 +68,7 @@ public class SLDLab {
             }
 
             fbuilder.add(geom.createLineString(points.toArray(new Coordinate[points.size()])));
+            fbuilder.add("Feature " + i);
             coll.add(fbuilder.buildFeature(null));
         }
 
@@ -82,7 +84,8 @@ public class SLDLab {
     private static Style createStyleFromSLD2() {
 
         //String path = "/styleSld/style.sld";
-        String path = "/styleSld/style_hatching.sld";
+        //String path = "/styleSld/style_hatching.sld";
+        String path = "/styleSld/style_label.sld";
         InputStream stream = SLDLab.class.getResourceAsStream(path);
 
         SLDParser stylereader = new SLDParser(sf, stream);
