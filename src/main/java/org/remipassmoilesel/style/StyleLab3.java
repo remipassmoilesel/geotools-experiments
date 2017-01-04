@@ -42,8 +42,8 @@ public class StyleLab3 {
         // main style
         // Style style = createDefaultStyle();
         // Style style = createSimpleStyleFromSLD();
-        // Style style = createStyleFromSLD2();
-        Style style = specialRoundGraphicStrokes();
+        Style style = createStyleFromSLD2();
+        // Style style = specialRoundGraphicStrokes();
 
         // create a feature layer
         DefaultFeatureCollection coll = new DefaultFeatureCollection();
@@ -131,8 +131,9 @@ public class StyleLab3 {
     private static Style createStyleFromSLD2() {
 
         //String path = "/styleSld/style.sld";
-        String path = "/styleSld/style_hatching.sld";
+        //String path = "/styleSld/style_hatching.sld";
         //String path = "/styleSld/style_label.sld";
+        String path = "/styleSld/style_vertices.sld";
         InputStream stream = StyleLab3.class.getResourceAsStream(path);
 
         SLDParser stylereader = new SLDParser(sf, stream);
