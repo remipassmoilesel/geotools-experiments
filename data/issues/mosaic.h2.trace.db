@@ -1,4 +1,4 @@
-01-28 15:49:26 jdbc[2]: Connection not closed
+01-28 15:54:43 jdbc[2]: Connection not closed
 java.lang.Exception: Stack Trace
 	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:121)
 	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:94)

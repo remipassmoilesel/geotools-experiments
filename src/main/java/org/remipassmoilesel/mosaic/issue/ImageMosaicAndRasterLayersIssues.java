@@ -81,7 +81,6 @@ public class ImageMosaicAndRasterLayersIssues {
         // create a map content and display it
         MapContent mapContent = new MapContent();
 
-        
         // first configuration: WMS and shapefile are well shown, mosaic is weird, raster is not displayed
         mapContent.addLayer(wmsLayer);
         mapContent.addLayer(shapefileLayer);
@@ -278,16 +277,22 @@ public class ImageMosaicAndRasterLayersIssues {
      * @return
      * @throws IOException
      */
-    public static org.geotools.map.Layer buildRasterLayer(Path imagePath) throws IOException {
+    public static org.geotools.map.Layer buildRasterLayer(Path imagePath) throws Exception {
+
+        // here if we do not force CRS layer will not be displayed over WMS layer
+        String crsCode = "EPSG:4326";
+        Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode(crsCode));
 
         File rasterFile = imagePath.toFile();
         AbstractGridFormat format = GridFormatFinder.findFormat(rasterFile);
-        AbstractGridCoverage2DReader reader = format.getReader(rasterFile);
+        AbstractGridCoverage2DReader reader = format.getReader(rasterFile, hints);
         GridCoverage2D coverage = reader.read(null);
 
         if (coverage == null) {
             throw new IOException("Unable to read coverage: " + imagePath);
         }
+
+
 
         //Style style = createGreyscaleStyle(1);
         Style style = createDefaultRGBStyle(coverage);
