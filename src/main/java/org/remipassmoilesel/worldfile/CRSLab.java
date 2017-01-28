@@ -48,10 +48,37 @@ public class CRSLab {
     private MapContent map;
 
     public static void main(String[] args) throws Exception {
+
 //        CRSLab lab = new CRSLab();
 //        lab.displayShapefile("data/ne_50m_admin/ne_50m_admin_0_countries.shp");
 
-        displayCRS(null);
+        //displayCRS(null);
+
+        String wkt = "PROJCS[\"NAD83 / BC Albers\"," +
+                "GEOGCS[\"NAD83\", " +
+                "  DATUM[\"North_American_Datum_1983\", " +
+                "    SPHEROID[\"GRS 1980\", 6378137.0, 298.257222101, AUTHORITY[\"EPSG\",\"7019\"]], " +
+                "    TOWGS84[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], " +
+                "    AUTHORITY[\"EPSG\",\"6269\"]], " +
+                "  PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " +
+                "  UNIT[\"degree\", 0.017453292519943295], " +
+                "  AXIS[\"Lon\", EAST], " +
+                "  AXIS[\"Lat\", NORTH], " +
+                "  AUTHORITY[\"EPSG\",\"4269\"]], " +
+                "PROJECTION[\"Albers_Conic_Equal_Area\"], " +
+                "PARAMETER[\"central_meridian\", -126.0], " +
+                "PARAMETER[\"latitude_of_origin\", 45.0], " +
+                "PARAMETER[\"standard_parallel_1\", 50.0], " +
+                "PARAMETER[\"false_easting\", 1000000.0], " +
+                "PARAMETER[\"false_northing\", 0.0], " +
+                "PARAMETER[\"standard_parallel_2\", 58.5], " +
+                "UNIT[\"m\", 1.0], " +
+                "AXIS[\"x\", EAST], " +
+                "AXIS[\"y\", NORTH]]";
+        CoordinateReferenceSystem example = CRS.parseWKT(wkt);
+
+        System.out.println(CRS.lookupIdentifier(example, true));
+        System.out.println(CRS.lookupIdentifier(CRS.decode("EPSG:4230"), true));
     }
 
     private static void displayCRS(String code) throws FactoryException {

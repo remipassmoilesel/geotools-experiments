@@ -63,7 +63,7 @@
 //        // reading the coverage
 //        GridCoverage2D coverage = reader.read(params);
 //
-//        GridCoverageLayer layer = new GridCoverageLayer(coverage, GuiUtils.getDefaultRGBRasterStyle(reader));
+//        GridCoverageLayer layer = new GridCoverageLayer(coverage, GuiUtils.createDefaultRGBStyle(reader));
 //
 //        GuiUtils.showInWindow(layer);
 //    }

@@ -17,6 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Utilities for tutorials
@@ -57,6 +58,32 @@ public class GuiUtils {
             frame.setVisible(true);
 
         });
+
+    }
+
+    /**
+     * Show a MapContent in a window
+     *
+     * @param content
+     */
+    public static void showInWindowAndWait(MapContent content) {
+
+        try {
+            SwingUtilities.invokeAndWait(() -> {
+
+                // Create a JMapFrame with a menu to choose the display style for the
+                JMapFrame frame = new JMapFrame(content);
+                frame.setSize(800, 600);
+                frame.enableStatusBar(true);
+                frame.enableTool(JMapFrame.Tool.ZOOM, JMapFrame.Tool.PAN, JMapFrame.Tool.RESET);
+                frame.enableToolBar(true);
+                frame.enableLayerTable(true);
+                frame.setVisible(true);
+
+            });
+        } catch (InterruptedException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
     }
 

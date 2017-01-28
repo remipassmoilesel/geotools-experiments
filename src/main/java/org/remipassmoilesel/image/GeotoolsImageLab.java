@@ -51,7 +51,7 @@ import org.opengis.style.ContrastMethod;
  * raster data into the mix by displaying a three-band global satellite image, and overlaying it with country boundaries from a shapefile.
  *
  */
-public class ImageLab {
+public class GeotoolsImageLab {
 
     private StyleFactory sf = CommonFactoryFinder.getStyleFactory();
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
@@ -61,7 +61,7 @@ public class ImageLab {
 
     public static void main(String[] args){
         SwingUtilities.invokeLater(() -> {
-            ImageLab me = new ImageLab();
+            GeotoolsImageLab me = new GeotoolsImageLab();
             try {
                 me.getLayersAndDisplay();
             } catch (Exception e) {

@@ -110,6 +110,7 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic-jdbc</artifactId>
             <version>17-SNAPSHOT</version>
+            <!--<version>${geotools.version}</version>-->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-jdbc -->
