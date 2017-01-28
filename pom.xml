@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.remipassmoilesel</groupId>
-    <artifactId>geotools-tutorial</artifactId>
+    <artifactId>geotools-experiments</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>geotools-tutorial</name>
+    <name>geotools-experiments</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -109,8 +109,9 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic-jdbc</artifactId>
-            <version>17-SNAPSHOT</version>
-            <!--<version>${geotools.version}</version>-->
+            <!--// Uncomment if you can use custom JDBC mosaic plugin available at: https://github.com/remipassmoilesel/geotools-->
+            <!--<version>17-SNAPSHOT</version>-->
+            <version>${geotools.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.j256.ormlite/ormlite-jdbc -->

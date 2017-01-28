@@ -10,6 +10,7 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.WorldFileReader;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.simple.SimpleFeatureSource;
@@ -52,7 +53,7 @@ import java.util.Arrays;
 /**
  * Created by remipassmoilesel on 26/01/17.
  */
-public class ImageMosaicAndRasterLayersIssues {
+public class ImageMosaicJDBCIssue {
 
     private static final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
     private static final StyleFactory sf = CommonFactoryFinder.getStyleFactory();
@@ -64,12 +65,8 @@ public class ImageMosaicAndRasterLayersIssues {
 
     public static void main(String[] args) throws Exception {
 
-        // TODO: force CRS in raster layer
-        // TODO: check image after insertion in database
-        // TODO: try with original jdbc mosaic plugin
-
         String wmsUrl = "http://ows.mundialis.de/services/service";
-        Path databaseFolder = Paths.get("data/issues");
+        Path databaseFolder = Paths.get("data/mosaic-issues");
         Path imagePath = Paths.get("data/jdbc-mosaic-sample/map.tif");
         String shapeFilePath = "data/ne_50m_admin/ne_50m_admin_0_countries0_repro.shp";
 
@@ -81,19 +78,17 @@ public class ImageMosaicAndRasterLayersIssues {
         // create a map content and display it
         MapContent mapContent = new MapContent();
 
-        // first configuration: WMS and shapefile are well shown, mosaic is weird, raster is not displayed
         mapContent.addLayer(wmsLayer);
         mapContent.addLayer(shapefileLayer);
-        mapContent.addLayer(mosaicLayer);
         mapContent.addLayer(rasterLayer);
-
+        mapContent.addLayer(mosaicLayer);
 
         /*
-        // second configuration: raster and shapefile are well shown, mosaic is weird
-        //mapContent.addLayer(wmsLayer);
-        mapContent.addLayer(shapefileLayer);
-        mapContent.addLayer(mosaicLayer);
-        mapContent.addLayer(rasterLayer);
+        System.out.println();
+        System.out.println("rasterLayer.getBounds()");
+        System.out.println(rasterLayer.getBounds());
+        System.out.println("mosaicLayer.getBounds()");
+        System.out.println(mosaicLayer.getBounds());
         */
 
         GuiUtils.showInWindowAndWait(mapContent);
@@ -163,18 +158,10 @@ public class ImageMosaicAndRasterLayersIssues {
         // show image to check it
         //GuiUtils.showImage(bimg);
 
-        /*
         WorldFileReader worldFile = new WorldFileReader(Paths.get("data/jdbc-mosaic-sample/map.tfw").toFile());
 
-        System.out.println("worldFile");
-        System.out.println(worldFile.getXULC());
-        System.out.println(worldFile.getYULC());
-        System.out.println(worldFile.getXPixelSize());
-        System.out.println(worldFile.getYPixelSize());
-        */
-
         /*
-        // these values display image in a good way
+        // these values display image in a good way, but not at a good place
         String crsCode = "EPSG:404000";
         double minx = 0;
         double miny = 0;
@@ -183,12 +170,17 @@ public class ImageMosaicAndRasterLayersIssues {
         */
 
         String crsCode = "EPSG:4326";
-        double minx = 8.996226;
-        double maxx = 16.996226;
-        double miny = 46.002551;
-        double maxy = 49.002551;
+        double minx = worldFile.getXULC();
+        double maxx = worldFile.getXULC() + worldFile.getXPixelSize() * diskImage.getWidth();
+        double miny = worldFile.getYULC() + worldFile.getYPixelSize() * diskImage.getHeight();
+        double maxy = worldFile.getYULC();
 
         ReferencedEnvelope bounds = new ReferencedEnvelope(minx, maxx, miny, maxy, CRS.decode(crsCode));
+
+        /*
+        System.out.println("mosaic bounds");
+        System.out.println(bounds);
+        */
 
         // insert image in database
         PreparedStatement imgStat1 = TileStorageQueries.insertIntoDataTable(conn, dataTableName);
@@ -225,13 +217,17 @@ public class ImageMosaicAndRasterLayersIssues {
         result.close();
         imgSelect.close();
 
+        // I use a custom jdbc mosaic extension modifed in order to allow instantiation of Config object
+        // Unit testing confirm that there is no influence from that, but you can check that by using this configuration file
+        File configFile = new File("src/main/java/org/remipassmoilesel/mosaic/issue/config.xml");
+
         // create a configuration for layer
-        Config config = getConfiguration(databasePath, coverageName, crsCode);
+        // Config config = getConfiguration(databasePath, coverageName, crsCode);
 
         // create layer
-        AbstractGridFormat format = GridFormatFinder.findFormat(config);
-        Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode(crsCode));
-        ImageMosaicJDBCReader reader = (ImageMosaicJDBCReader) format.getReader(config, hints);
+        AbstractGridFormat format = GridFormatFinder.findFormat(configFile);
+        Hints hints = null; //new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode("EPSG:4326"));
+        ImageMosaicJDBCReader reader = (ImageMosaicJDBCReader) format.getReader(configFile, hints);
 
         ParameterValue<GridGeometry2D> gg = AbstractGridFormat.READ_GRIDGEOMETRY2D.createValue();
 
@@ -279,7 +275,7 @@ public class ImageMosaicAndRasterLayersIssues {
      */
     public static org.geotools.map.Layer buildRasterLayer(Path imagePath) throws Exception {
 
-        // here if we do not force CRS layer will not be displayed over WMS layer
+        // If we do not force CRS here, layer will not be displayed over WMS layer
         String crsCode = "EPSG:4326";
         Hints hints = new Hints(Hints.DEFAULT_COORDINATE_REFERENCE_SYSTEM, CRS.decode(crsCode));
 
@@ -291,8 +287,6 @@ public class ImageMosaicAndRasterLayersIssues {
         if (coverage == null) {
             throw new IOException("Unable to read coverage: " + imagePath);
         }
-
-
 
         //Style style = createGreyscaleStyle(1);
         Style style = createDefaultRGBStyle(coverage);
@@ -373,6 +367,10 @@ public class ImageMosaicAndRasterLayersIssues {
      */
     private static Config getConfiguration(Path databasePath, String coverageName, String crsCode) {
 
+        /*
+
+        // Uncomment if you can use custom JDBC mosaic plugin available at: https://github.com/remipassmoilesel/geotools
+
         // instantiate configuration
         Config config = new Config("org." + coverageName + "_" + System.nanoTime());
 
@@ -391,7 +389,7 @@ public class ImageMosaicAndRasterLayersIssues {
         config.setJdbcUrl(getJdbcUrlForH2(databasePath));
         config.setDriverClassName("org.h2.Driver");
         config.setMaxActive(5);
-        config.setMaxIdle(0);
+        config.setMaxIdle(10);
         config.setSpatialExtension(SpatialExtension.fromString("universal"));
 
         // master table
@@ -420,6 +418,10 @@ public class ImageMosaicAndRasterLayersIssues {
         config.validateConfig();
 
         return config;
+
+        */
+
+        return null;
     }
 
     public static org.geotools.styling.Style createDefaultRGBStyle(GridCoverage2D cov) {

@@ -1,4 +1,4 @@
-01-28 15:54:43 jdbc[2]: Connection not closed
+01-28 16:47:44 jdbc[2]: Connection not closed
 java.lang.Exception: Stack Trace
 	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:121)
 	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:94)
@@ -7,8 +7,8 @@ java.lang.Exception: Stack Trace
 	at org.h2.jdbcx.JdbcDataSource.getPooledConnection(JdbcDataSource.java:318)
 	at org.h2.jdbcx.JdbcConnectionPool.getConnectionNow(JdbcConnectionPool.java:223)
 	at org.h2.jdbcx.JdbcConnectionPool.getConnection(JdbcConnectionPool.java:201)
-	at org.remipassmoilesel.mosaic.issue.ImageMosaicAndRasterLayersIssues.buildMosaicLayer(ImageMosaicAndRasterLayersIssues.java:123)
-	at org.remipassmoilesel.mosaic.issue.ImageMosaicAndRasterLayersIssues.main(ImageMosaicAndRasterLayersIssues.java:79)
+	at org.remipassmoilesel.mosaic.issue.ImageMosaicJDBCIssue.buildMosaicLayer(ImageMosaicJDBCIssue.java:118)
+	at org.remipassmoilesel.mosaic.issue.ImageMosaicJDBCIssue.main(ImageMosaicJDBCIssue.java:76)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)

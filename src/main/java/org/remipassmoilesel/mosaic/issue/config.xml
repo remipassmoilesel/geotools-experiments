@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<ImageMosaicJDBCConfig version="1.0">
+
+    <!-- General configuration -->
+    <coverageName name="firstcoverage"/>
+    <coordsys name="EPSG:4236"/>
+    <scaleop interpolation="1"/>
+    <axisOrder ignore="false"/>
+    <verify cardinality="true"/>
+
+    <!-- Connection configuration -->
+    <connect>
+        <dstype value="DBCP"/>
+        <username value=""/>
+        <password value=""/>
+        <jdbcUrl value="jdbc:h2:file:data/mosaic-issues/mosaic.h2"/>
+        <driverClassName value="org.h2.Driver"/>
+        <maxActive value="5"/>
+        <maxIdle value="10"/>
+    </connect>
+
+    <!-- Mapping configuration -->
+    <spatialExtension name="universal"/>
+
+    <masterTable name="ABM_TILES_MASTER_TABLE">
+        <coverageNameAttribute name="COVERAGE_NAME"/>
+        <maxXAttribute name="MAX_X"/>
+        <maxYAttribute name="MAX_Y"/>
+        <minXAttribute name="MIN_X"/>
+        <minYAttribute name="MIN_Y"/>
+        <resXAttribute name="RES_X"/>
+        <resYAttribute name="RES_Y"/>
+        <tileTableNameAtribute name="TILE_TABLE_NAME"/>
+        <spatialTableNameAtribute name="SPATIAL_TABLE_NAME"/>
+    </masterTable>
+
+    <tileTable>
+        <blobAttributeName name="TILE_DATA"/>
+        <keyAttributeName name="TILE_ID"/>
+    </tileTable>
+
+    <spatialTable>
+        <keyAttributeName name="TILE_ID"/>
+        <tileMaxXAttribute name="MAX_X"/>
+        <tileMaxYAttribute name="MAX_Y"/>
+        <tileMinXAttribute name="MIN_X"/>
+        <tileMinYAttribute name="MIN_Y"/>
+    </spatialTable>
+
+</ImageMosaicJDBCConfig>
